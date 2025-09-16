@@ -83,6 +83,13 @@ public static class NumericExtensions
             throw new ArgumentOutOfRangeException($"{nameof(minBound)} can't be bigger than {nameof(maxBound)} ({minBound}>{maxBound})");
         }
 
+        var denominator = maxBound - minBound;
+
+        if (denominator == T.Zero)
+        {
+            throw new DivideByZeroException($"{nameof(maxBound)} and {nameof(minBound)} must not be equal. ({maxBound} == {minBound})");
+        }
+
         var zero = T.Zero;
         var one = T.One;
 
@@ -94,13 +101,6 @@ public static class NumericExtensions
         if (value >= maxBound)
         {
             return one;
-        }
-
-        var denominator = maxBound - minBound;
-
-        if (denominator == T.Zero)
-        {
-            throw new DivideByZeroException($"{nameof(maxBound)} and {nameof(minBound)} must not be equal. ({maxBound} == {minBound})");
         }
 
         return (value - minBound) / denominator;
