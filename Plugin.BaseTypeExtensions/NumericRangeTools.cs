@@ -1,6 +1,6 @@
-﻿using System.Numerics;
+using System.Numerics;
 
-namespace Laerdal.Helpers.Tools;
+namespace Plugin.BaseTypeExtensions;
 
 /// <summary>
 /// Provides utility methods for numeric range conversions, percentage calculations, and value mapping operations.

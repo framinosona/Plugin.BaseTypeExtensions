@@ -1,5 +1,3 @@
-using Laerdal.Helpers.Tools;
-
 namespace Plugin.BaseTypeExtensions;
 
 /// <summary>

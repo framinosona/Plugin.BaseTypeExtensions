@@ -1,6 +1,4 @@
-using Plugin.BaseTypeExtensions;
-
-namespace Laerdal.Helpers.Tools;
+namespace Plugin.BaseTypeExtensions;
 
 /// <summary>
 /// Provides helper methods for working with types implementing <see cref="IComparable{T}"/>.
