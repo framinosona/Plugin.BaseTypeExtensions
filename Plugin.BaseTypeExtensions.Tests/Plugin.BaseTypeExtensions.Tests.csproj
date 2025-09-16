@@ -31,6 +31,10 @@
     <Using Include="Xunit" />
     <Using Include="FluentAssertions" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources/FirstResource.txt" />
+    <EmbeddedResource Include="Resources/SecondResource.txt" />
+  </ItemGroup>
   <PropertyGroup>
     <TestOutputPath Condition="'$(TestOutputPath)' == ''">$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), `../output/tests`))</TestOutputPath>
 
