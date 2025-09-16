@@ -1,0 +1,42 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": ["Plugin.BaseTypeExtensions.csproj"],
+          "src": "../Plugin.BaseTypeExtensions"
+        }
+      ],
+      "includePrivateMembers": false,
+      "disableGitFeatures": false,
+      "disableDefaultFilter": false,
+      "noRestore": true,
+      "noBuild": true,
+      "namespaceLayout": "flattened",
+      "memberLayout": "samePage",
+      "allowCompilationErrors": false,
+      "apiFilter": "public"
+    }
+  ],
+  "build": {
+    "content": [{ "files": "**/*.{md,yml}" }, "toc.yml"],
+    "globalMetadata": {
+      "_appName": "Plugin.BaseTypeExtensions Documentation",
+      "_appTitle": "Plugin.BaseTypeExtensions",
+      "_enableSearch": true,
+      "_appFooter": "By Francois Raminosona - Licensed under the MIT License",
+      "_disableContribution": false,
+      "pdf": false
+    },
+    "sitemap": {
+      "baseUrl": "https://framinosona.github.io/Plugin.BaseTypeExtensions/",
+      "priority": 0.1,
+      "changefreq": "monthly"
+    },
+    "template": ["default", "modern"]
+  },
+  "serve": {
+    "host": "localhost",
+    "port": 8080
+  }
+}
