@@ -225,7 +225,7 @@ public class ReflectionAndAssemblyExtensionsTests
         {
             AssemblyExtensions.CacheDirectory = tempCacheDirectory;
             var assembly = typeof(ReflectionAndAssemblyExtensionsTests).Assembly;
-            
+
             var result = assembly.MoveManifestResourceToCache(
                 "Plugin.BaseTypeExtensions.Tests.Resources.FirstResource.txt",
                 filename: "cached_resource.txt");
@@ -249,7 +249,7 @@ public class ReflectionAndAssemblyExtensionsTests
         {
             AssemblyExtensions.CacheDirectory = tempCacheDirectory;
             var assembly = typeof(ReflectionAndAssemblyExtensionsTests).Assembly;
-            
+
             var result = await assembly.MoveManifestResourceToCacheAsync(
                 "Plugin.BaseTypeExtensions.Tests.Resources.SecondResource.txt",
                 filename: "cached_async_resource.txt");
@@ -273,7 +273,7 @@ public class ReflectionAndAssemblyExtensionsTests
         {
             AssemblyExtensions.CacheDirectory = tempCacheDirectory;
             var assembly = typeof(ReflectionAndAssemblyExtensionsTests).Assembly;
-            
+
             var result = assembly.MoveManifestResourceToCache(
                 "Plugin.BaseTypeExtensions.Tests.Resources.FirstResource.txt");
 
@@ -646,7 +646,7 @@ public class ReflectionAndAssemblyExtensionsTests
         }
     }
 
-    [Fact] 
+    [Fact]
     public void GetTypesWithAttribute_ReturnsEmptyWhenNoMatches()
     {
         var assembly = typeof(ReflectionAndAssemblyExtensionsTests).Assembly;
@@ -675,7 +675,7 @@ public class ReflectionAndAssemblyExtensionsTests
             // Test Skip behavior
             var existingFile = Path.Combine(tempCacheDirectory, "test_skip.txt");
             File.WriteAllText(existingFile, "existing content");
-            
+
             var result = assembly.MoveManifestResourceToCache(
                 "Plugin.BaseTypeExtensions.Tests.Resources.FirstResource.txt",
                 filename: "test_skip.txt",
@@ -719,7 +719,7 @@ public class ReflectionAndAssemblyExtensionsTests
             // Test Skip behavior
             var existingFile = Path.Combine(tempCacheDirectory, "test_async_skip.txt");
             File.WriteAllText(existingFile, "existing async content");
-            
+
             var result = await assembly.MoveManifestResourceToCacheAsync(
                 "Plugin.BaseTypeExtensions.Tests.Resources.FirstResource.txt",
                 filename: "test_async_skip.txt",
@@ -735,7 +735,7 @@ public class ReflectionAndAssemblyExtensionsTests
 
             result2.Name.Should().Be("test_async_skip_1.txt");
 
-            // Test Overwrite behavior  
+            // Test Overwrite behavior
             var result3 = await assembly.MoveManifestResourceToCacheAsync(
                 "Plugin.BaseTypeExtensions.Tests.Resources.FirstResource.txt",
                 filename: "test_async_skip.txt",
