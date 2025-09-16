@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Plugin.BaseTypeExtensions/Plugin.BaseTypeExtensions.csproj" />
+  <Project Path="Plugin.BaseTypeExtensions.Tests/Plugin.BaseTypeExtensions.Tests.csproj" />
+</Solution>
