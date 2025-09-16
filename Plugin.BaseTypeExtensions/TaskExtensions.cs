@@ -7,32 +7,6 @@ namespace Plugin.BaseTypeExtensions;
 public static class TaskExtensions
 {
     /// <summary>
-    /// Determines whether the task has completed, been canceled, or faulted.
-    /// </summary>
-    /// <param name="input">The task to check.</param>
-    /// <returns>True if the task is completed, canceled, or faulted; otherwise, false.</returns>
-    [Obsolete("Use Task.IsCompleted instead")]
-    public static bool IsDone(this Task input)
-    {
-        ArgumentNullException.ThrowIfNull(input);
-        switch (input.Status)
-        {
-            case TaskStatus.Created:
-            case TaskStatus.WaitingForActivation:
-            case TaskStatus.WaitingToRun:
-            case TaskStatus.Running:
-            case TaskStatus.WaitingForChildrenToComplete:
-                return false;
-            case TaskStatus.RanToCompletion:
-            case TaskStatus.Canceled:
-            case TaskStatus.Faulted:
-                return true;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(input), input.Status, "Unexpected TaskStatus value.");
-        }
-    }
-
-    /// <summary>
     /// Sets up a timeout-monitor on the given task. This is essentially a wrapper around
     /// <see cref="System.Threading.Tasks.Task.WaitAsync(TimeSpan)"/> with one major difference: it doesn't
     /// accept -1 as a means of "wait indefinitely" (we never considered this "shortcut value" to be a good
