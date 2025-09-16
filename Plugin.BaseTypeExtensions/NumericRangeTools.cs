@@ -1,4 +1,4 @@
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace Plugin.BaseTypeExtensions;
 
@@ -54,28 +54,40 @@ public static class NumericRangeTools
     /// <param name="step">The step size between each number in the range.</param>
     /// <returns>An IEnumerable of double values representing the range.</returns>
     /// <remarks>
-    /// This method generates a sequence of numbers starting from `start` to `end`, inclusive, with the specified `step`.
-    /// If `step` is zero or NaN, an empty sequence is returned.
-    /// The sequence will include both `start` and `end` if they are reachable with the given step.
+    /// This method generates a sequence of numbers starting from `start` and stopping before `end`, using the magnitude of
+    /// `step` to move between values. If `step` is zero, NaN, or infinite, an empty sequence is returned.
     /// </remarks>
     public static IEnumerable<double> GetRange(double start, double end, double step)
     {
-        if (step is 0 or double.NaN)
+        if (step is 0 or double.NaN || double.IsInfinity(step))
         {
-            return [];
+            return Array.Empty<double>();
         }
 
-        var minimum = Math.Min(start, end);
-        var maximum = Math.Max(start, end);
+        return Iterate();
 
-        var quotientMin = (int)Math.Floor(minimum / step);
-        var quotientMax = (int)Math.Floor(maximum / step);
+        IEnumerable<double> Iterate()
+        {
+            var isAscending = end >= start;
+            var increment = Math.Abs(step);
 
-        var numberOfSteps = quotientMax - quotientMin;
+            if (increment == 0)
+            {
+                yield break;
+            }
 
-        var steps = Range(0, numberOfSteps).Select(index => (quotientMin + index) * step);
+            if (!isAscending)
+            {
+                increment = -increment;
+            }
 
-        return steps;
+            for (var current = start;
+                 isAscending ? current < end : current > end;
+                 current += increment)
+            {
+                yield return current;
+            }
+        }
     }
 
     /// <summary>
@@ -86,28 +98,40 @@ public static class NumericRangeTools
     /// <param name="step">The step size between each number in the range.</param>
     /// <returns>An IEnumerable of float values representing the range.</returns>
     /// <remarks>
-    /// This method generates a sequence of floating-point numbers starting from `start` to `end`, inclusive, with the specified `step`.
-    /// If `step` is zero or NaN, an empty sequence is returned.
-    /// The sequence will include both `start` and `end` if they are reachable with the given step.
+    /// This method generates a sequence of floating-point numbers starting from `start` and stopping before `end`, using the magnitude of
+    /// `step` to move between values. If `step` is zero, NaN, or infinite, an empty sequence is returned.
     /// </remarks>
     public static IEnumerable<float> GetRange(float start, float end, float step)
     {
-        if (step is 0 or float.NaN)
+        if (step is 0 or float.NaN || float.IsInfinity(step))
         {
-            return [];
+            return Array.Empty<float>();
         }
 
-        var minimum = Math.Min(start, end);
-        var maximum = Math.Max(start, end);
+        return Iterate();
 
-        var quotientMin = (int)Math.Floor(minimum / step);
-        var quotientMax = (int)Math.Floor(maximum / step);
+        IEnumerable<float> Iterate()
+        {
+            var isAscending = end >= start;
+            var increment = MathF.Abs(step);
 
-        var numberOfSteps = quotientMax - quotientMin;
+            if (increment == 0)
+            {
+                yield break;
+            }
 
-        var steps = Range(0, numberOfSteps).Select(index => (quotientMin + index) * step);
+            if (!isAscending)
+            {
+                increment = -increment;
+            }
 
-        return steps;
+            for (var current = start;
+                 isAscending ? current < end : current > end;
+                 current += increment)
+            {
+                yield return current;
+            }
+        }
     }
 
     /// <summary>
@@ -118,49 +142,43 @@ public static class NumericRangeTools
     /// <param name="step">The step size between each DateTime in the range.</param>
     /// <returns>An IEnumerable of DateTime values representing the range.</returns>
     /// <remarks>
-    /// This method generates a sequence of DateTime values starting from `start` to `end`, inclusive, with the specified `step`.
-    /// If `step` is zero, an empty sequence is returned.
-    /// The sequence will include both `start` and `end` if they are reachable with the given step.
+    /// This method generates a sequence of DateTime values starting from `start` and stopping before `end`, using the magnitude of
+    /// `step` to move between values. If `step` is zero or equals <see cref="TimeSpan.MinValue"/>, an empty sequence is returned.
     /// </remarks>
     public static IEnumerable<DateTime> GetRange(DateTime start, DateTime end, TimeSpan step)
     {
-        if (step == TimeSpan.Zero)
+        if (step == TimeSpan.Zero || step == TimeSpan.MinValue)
         {
             return Array.Empty<DateTime>();
         }
 
-        var minimum = start < end ? start : end;
-        var maximum = start < end ? end : start;
+        return Iterate();
 
-        var quotientMin = Math.DivRem(minimum.Ticks, step.Ticks, out var remainderMin);
-        var quotientMax = Math.DivRem(maximum.Ticks, step.Ticks, out _);
-
-        var minTime = minimum.AddTicks(-remainderMin);
-
-        var numberOfSteps = (int)Math.Floor((double)(quotientMax - quotientMin));
-
-        var steps = Range(0, numberOfSteps).Select(index => minTime + TimeSpan.FromTicks(index * step.Ticks));
-
-        return steps;
-    }
-
-    /// <summary>
-    /// Generates a sequence of integers from start to end, inclusive.
-    /// </summary>
-    /// <param name="startIndex">The start of the range.</param>
-    /// <param name="endIndex">The end of the range.</param>
-    /// <returns>An IEnumerable of integers representing the range.</returns>
-    /// <remarks>
-    /// This method generates a sequence of integers starting from `startIndex` to `endIndex`, inclusive.
-    /// If `startIndex` is greater than `endIndex`, the sequence will be empty.
-    /// </remarks>
-    private static IEnumerable<int> Range(int startIndex, int endIndex)
-    {
-        for (var currentIndex = startIndex; currentIndex <= endIndex; currentIndex++)
+        IEnumerable<DateTime> Iterate()
         {
-            yield return currentIndex;
+            var isAscending = end >= start;
+            var tickStep = step.Ticks;
+            var increment = Math.Abs(tickStep);
+
+            if (increment == 0)
+            {
+                yield break;
+            }
+
+            if (!isAscending)
+            {
+                increment = -increment;
+            }
+
+            for (var current = start;
+                 isAscending ? current < end : current > end;
+                 current = current.AddTicks(increment))
+            {
+                yield return current;
+            }
         }
     }
+
     #endregion
 
 }
