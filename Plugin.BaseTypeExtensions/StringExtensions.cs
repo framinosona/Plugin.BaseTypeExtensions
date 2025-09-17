@@ -40,7 +40,7 @@ public static partial class StringExtensions
         var result = new StringBuilder(input.Length);
         foreach (var c in input)
         {
-            if (char.IsLetterOrDigit(c) || char.IsWhiteSpace(c))
+            if (char.IsLetterOrDigit(c) || char.IsWhiteSpace(c) || c == '-')
             {
                 result.Append(c);
             }
