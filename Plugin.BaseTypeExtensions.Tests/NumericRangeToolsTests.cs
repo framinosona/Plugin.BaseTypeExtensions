@@ -1,5 +1,3 @@
-using Plugin.BaseTypeExtensions;
-
 namespace Plugin.BaseTypeExtensions.Tests;
 
 public class NumericRangeToolsTests

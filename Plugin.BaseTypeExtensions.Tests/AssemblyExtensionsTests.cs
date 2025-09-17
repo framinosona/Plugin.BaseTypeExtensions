@@ -1,9 +1,5 @@
 using System.Reflection;
 
-using Plugin.BaseTypeExtensions;
-
-using AssemblyExtensions = Plugin.BaseTypeExtensions.AssemblyExtensions;
-
 namespace Plugin.BaseTypeExtensions.Tests;
 
 public class AssemblyExtensionsTests

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 
-using Plugin.BaseTypeExtensions;
+namespace Plugin.BaseTypeExtensions.Tests;
 
 public class EnumerableExtensionsTests
 {
