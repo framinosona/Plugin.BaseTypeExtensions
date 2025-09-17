@@ -1,4 +1,5 @@
 using System.Reflection;
+
 using Plugin.BaseTypeExtensions;
 
 using AssemblyExtensions = Plugin.BaseTypeExtensions.AssemblyExtensions;
@@ -845,7 +846,7 @@ public class AssemblyExtensionsTests
             // This test simulates hitting the 1000 counter limit by mocking a scenario
             // where the file creation fails after many attempts
             var assembly = typeof(AssemblyExtensionsTests).Assembly;
-            
+
             // Create a file that would cause the rename logic to increment
             File.WriteAllText(Path.Combine(directory, "test.txt"), "existing");
 
@@ -892,7 +893,7 @@ public class AssemblyExtensionsTests
         try
         {
             var assembly = typeof(AssemblyExtensionsTests).Assembly;
-            
+
             // Test with a longer file path
             var result = await assembly.MoveManifestResourceToDirectoryAsync(
                 "Plugin.BaseTypeExtensions.Tests.Resources.FirstResource.txt",
@@ -941,7 +942,7 @@ public class AssemblyExtensionsTests
     {
         // Test that all enum values exist and have expected values
         var enumValues = Enum.GetValues<AssemblyExtensions.FileAlreadyExistsBehavior>();
-        
+
         enumValues.Should().Contain(AssemblyExtensions.FileAlreadyExistsBehavior.Overwrite);
         enumValues.Should().Contain(AssemblyExtensions.FileAlreadyExistsBehavior.Skip);
         enumValues.Should().Contain(AssemblyExtensions.FileAlreadyExistsBehavior.Rename);
@@ -958,7 +959,7 @@ public class AssemblyExtensionsTests
             File.WriteAllText(targetFile, "existing");
 
             var assembly = typeof(AssemblyExtensionsTests).Assembly;
-            
+
             // Test that default behavior is Fail when no parameter provided
             Action action = () => assembly.MoveManifestResourceToDirectory(
                 "Plugin.BaseTypeExtensions.Tests.Resources.FirstResource.txt",

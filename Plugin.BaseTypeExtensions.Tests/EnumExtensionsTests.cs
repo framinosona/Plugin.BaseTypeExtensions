@@ -1,4 +1,5 @@
 using System.ComponentModel;
+
 using Plugin.BaseTypeExtensions;
 
 public class EnumExtensionsTests
