@@ -1,4 +1,4 @@
-﻿namespace Plugin.BaseTypeExtensions;
+namespace Plugin.BaseTypeExtensions;
 
 /// <summary>
 /// Provides extension methods for <see cref="DateTime"/> operations, such as range checks and percentage calculations.
