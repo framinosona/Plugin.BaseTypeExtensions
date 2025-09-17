@@ -1,4 +1,4 @@
-﻿namespace Plugin.BaseTypeExtensions;
+namespace Plugin.BaseTypeExtensions;
 
 /// <summary>
 ///     Utility method for bytes and byte-arrays.
