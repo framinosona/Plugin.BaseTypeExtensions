@@ -1,4 +1,4 @@
-﻿namespace Plugin.BaseTypeExtensions;
+namespace Plugin.BaseTypeExtensions;
 
 /// <summary>
 /// Provides extension methods for working with <see cref="IDictionary{TKey, TValue}"/> and related dictionary types.

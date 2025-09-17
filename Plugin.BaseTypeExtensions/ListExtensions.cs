@@ -1,4 +1,4 @@
-﻿namespace Plugin.BaseTypeExtensions;
+namespace Plugin.BaseTypeExtensions;
 
 /// <summary>
 /// Provides extension methods for <see cref="IList{T}"/> to support advanced update and pairing operations.

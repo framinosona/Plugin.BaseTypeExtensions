@@ -1,4 +1,4 @@
-﻿namespace Plugin.BaseTypeExtensions;
+namespace Plugin.BaseTypeExtensions;
 
 /// <summary>
 /// A family of extension methods that ensure that the <see cref="TaskCompletionSource"/> is properly cleaned up in the case of a timeout either

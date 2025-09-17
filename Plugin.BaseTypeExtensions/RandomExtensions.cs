@@ -1,4 +1,4 @@
-﻿namespace Plugin.BaseTypeExtensions;
+namespace Plugin.BaseTypeExtensions;
 
 /// <summary>
 ///     Provides extension methods for the <see cref="Random"/> class.

@@ -1,4 +1,5 @@
 using System.Reflection;
+
 using Plugin.BaseTypeExtensions;
 
 namespace Plugin.BaseTypeExtensions.Tests;

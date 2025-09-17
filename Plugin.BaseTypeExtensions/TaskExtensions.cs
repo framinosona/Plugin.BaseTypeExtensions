@@ -1,4 +1,4 @@
-﻿
+
 namespace Plugin.BaseTypeExtensions;
 
 /// <summary>
