@@ -1,15 +1,85 @@
-# 🗂️ Plugin.BaseTypeExtensions Documentation
+# Plugin.BaseTypeExtensions
 
-Welcome to the **Plugin.BaseTypeExtensions** documentation! This library provides a comprehensive collection of extension methods for .NET base types, designed to enhance productivity, type safety, and code readability in modern .NET applications.
+Welcome to **Plugin.BaseTypeExtensions** - a comprehensive .NET 9 library that provides powerful extension methods for base types, designed to enhance your development experience with clean, intuitive, and performance-optimized code.
 
----
+## 🚀 Overview
 
-## 🚀 Quick Start
+This library extends .NET's fundamental types with a rich collection of utility methods, following modern .NET patterns and leveraging advanced generic constraints like `INumber<T>` and `IComparable<T>` for type safety and performance.
+
+## 📋 Complete Feature Documentation
+
+### 🔤 String & Text Processing
+- **[StringExtensions](StringExtensions.md)** - Comprehensive string manipulation, validation, transformation, and utility methods (40+ methods)
+  - Validation (email, URL, numeric)
+  - Case conversion (camelCase, PascalCase, kebab-case, snake_case)
+  - Manipulation (truncation, padding, whitespace handling)
+  - Encoding (Base64, HTML encoding/decoding)
+  - Analysis (word count, character analysis, substring extraction)
+
+### 🔢 Numeric & Mathematical Operations
+- **[NumericExtensions](NumericExtensions.md)** - Type-safe numeric operations for all `INumber<T>` types
+  - Range operations (clamp, percentage calculations)
+  - Angle conversions (degree/radian)
+  - Type conversions with safety
+  - Generic constraints for compile-time safety
+
+### 📋 Collection & LINQ Operations
+- **[EnumerableExtensions](EnumerableExtensions.md)** - Advanced LINQ-style operations and utilities
+  - Batch processing and chunking
+  - Conditional operations (WhereIf, SelectIf)
+  - Advanced LINQ operations (DistinctBy, MaxBy, MinBy)
+  - Safety extensions (EmptyIfNull, IsNullOrEmpty)
+
+### ⚡ Async & Threading
+- **[TaskExtensions](TaskExtensions.md)** - Advanced async operations and timeout management
+  - Timeout operations with cancellation support
+  - Configurable timeout management
+  - Robust error handling patterns
+- **[CancellationTokenExtensions](CancellationTokenExtensions.md)** - Advanced timeout and async operations for CancellationToken
+  - Timeout creation and management
+  - Task conversion and coordination
+  - Combined cancellation patterns
+
+### ⏰ Time & Date Operations
+- **[TimeSpanExtensions](TimeSpanExtensions.md)** - Comprehensive TimeSpan operations and formatting
+  - Human-readable formatting (ToReadableString, ToHumanReadable)
+  - Arithmetic operations (multiply, divide, percentage)
+  - Rounding operations (RoundToNearest, RoundUp, RoundDown)
+  - Conversion and precision methods
+
+### 📅 Date & Time Extensions
+- **DateTimeExtensions** - DateTime manipulation and formatting utilities
+- **DateOnlyExtensions** - DateOnly type extensions for modern date handling
+- **TimeOnlyExtensions** - TimeOnly type extensions for time-specific operations
+
+### 🗂️ Collection Specific Extensions
+- **ListExtensions** - List-specific operations and utilities
+- **DictionaryExtensions** - Dictionary manipulation and safety extensions
+
+### 🔍 Reflection & Metadata
+- **AssemblyExtensions** - Assembly information and metadata extraction
+- **ReflectionExtensions** - Advanced reflection utilities and type operations
+
+### 🎲 Utility Extensions
+- **RandomExtensions** - Enhanced random number generation and utilities
+- **GuidExtensions** - GUID manipulation and validation
+- **VersionExtensions** - Version comparison and formatting
+- **ByteExtensions** - Byte array operations and conversions
+
+### � Advanced Utilities
+- **EnumExtensions** - Enum manipulation and flag operations
+- **ComparableExtensions** - Generic comparison utilities
+- **TaskCompletionSourceExtensions** - Enhanced TaskCompletionSource operations
+
+### 🛠️ Utility Classes
+- **ComparableTools** - Utility methods for comparable operations
+- **NumericRangeTools** - Numeric range generation and manipulation
+
+## 🏁 Quick Start
 
 ### Installation
 
 ```bash
-# Install from NuGet (when published)
 dotnet add package Plugin.BaseTypeExtensions
 ```
 
@@ -18,231 +88,191 @@ dotnet add package Plugin.BaseTypeExtensions
 ```csharp
 using Plugin.BaseTypeExtensions;
 
-// String utilities
-string result = input.NullIfDud() ?? "default";
-string clean = "Hello@World!".RemoveSpecialCharacters(); // "HelloWorld"
+// String operations
+string email = "  user@EXAMPLE.com  ";
+string clean = email.NullIfDud()?.Trim().ToLowerInvariant();
+bool isValid = clean.IsValidEmail(); // true
 
-// Numeric conversions and calculations
-double radians = 45.0.DegreeToRadian();
-int clamped = value.Clamp(0, 100);
-double percentage = 150.ValueToPercentage(100, 200); // 0.5
-
-// Enum operations with flags
-var flags = MyFlags.None.SetFlag(MyFlags.Option1);
-string description = MyEnum.Value.GetDescription();
-var allValues = EnumExtensions.AllAsArray<MyEnum>();
+// Numeric operations
+int value = 150;
+int clamped = value.Clamp(0, 100); // 100
+double percentage = value.ValueToPercentage(0, 200); // 0.75
 
 // Collection operations
-items.NullIfEmpty()?.Count(); // Returns null if empty
-dictionary.Add(new KeyValuePair<string, int>("key", 42));
-list.UpdateFrom(newItems, matcher, onAdd, onRemove);
+var numbers = Enumerable.Range(1, 100);
+var chunks = numbers.ChunkBy(10); // 10 chunks of 10 items each
 
-// Date/Time utilities
-DateTime result = 0.5.PercentageToDateTime(start, end);
-double progress = current.DateTimeToPercentage(start, end);
+// Async operations with timeout
+var result = await SomeLongRunningTask()
+    .WithTimeoutInMs(5000); // 5 second timeout
 
-// Assembly and reflection helpers
-var assembly = instance.GetAssembly();
-var typesWithAttribute = assembly.GetTypesWithAttribute<MyAttribute>();
-var resourceFile = assembly.MoveManifestResourceToCache("resource.txt");
+// TimeSpan formatting
+var duration = TimeSpan.FromHours(2.5);
+string readable = duration.ToReadableString(); // "2h 30m"
+string human = duration.ToHumanReadable(); // "2 hours, 30 minutes"
+
+// CancellationToken with timeout
+using var cts = new CancellationTokenSource();
+var timeoutToken = cts.Token.WithTimeout(TimeSpan.FromMinutes(5));
+await ProcessDataAsync(timeoutToken);
 ```
-
----
-
-## 📚 Core Feature Categories
-
-### � String Extensions
-
-Enhanced string manipulation and validation:
-
-- **Null Safety**: `NullIfDud()` for clean null handling
-- **Sanitization**: `RemoveSpecialCharacters()` for input cleaning
-- **Validation**: Built-in null and whitespace checking
-
-### 🔢 Numeric Extensions
-
-Powerful numeric operations for all `INumber<T>` types:
-
-- **Angle Conversion**: `DegreeToRadian()`, `RadianToDegree()`
-- **Range Operations**: `Clamp()`, `PercentageToValue()`, `ValueToPercentage()`
-- **Type Conversion**: `ToByte()`, percentage calculations
-- **Range Generation**: `NumericRangeTools.GetRange()` with custom steps
-
-### 🏷️ Enum Extensions
-
-Comprehensive enum manipulation and introspection:
-
-- **Flag Operations**: `SetFlag()`, `UnsetFlag()`, `TweakFlag()`
-- **Metadata**: `GetDescription()` with `DescriptionAttribute` support
-- **Enumeration**: `AllAsArray<T>()` for all enum values
-- **Performance**: Optimized with `MethodImpl.AggressiveInlining`
-
-### 📅 Temporal Extensions
-
-Date and time utilities for `DateTime`, `DateOnly`, and `TimeOnly`:
-
-- **Percentage Mapping**: Convert between dates and percentages
-- **Range Calculations**: Progress tracking between date ranges
-- **Type-Safe Operations**: Overloaded for different temporal types
-
-### 🗂️ Collection Extensions
-
-Advanced collection manipulation and synchronization:
-
-- **Dictionary Operations**: `Add()`, `Remove()`, `Update()` with KeyValuePair
-- **List Management**: Comprehensive list utilities
-- **Enumerable Utilities**: `NullIfEmpty()`, `GetOrDefault()`, `Enqueue()` with limits
-- **Synchronization**: `UpdateFrom()` with custom comparison and update logic
-- **Dictionary Comparison**: `CompareDictionaries()` with transformation support
-
-### 🔍 Reflection & Assembly Extensions
-
-Safe reflection and assembly resource management:
-
-- **Type Discovery**: `GetTypesWithAttribute<T>()` with async support
-- **Resource Extraction**: `MoveManifestResourceToDirectory()` with conflict handling
-- **Assembly Utilities**: `GetAssembly()`, `GetResourceStream()`
-- **Caching**: `MoveManifestResourceToCache()` with configurable cache directory
-
-### ⚖️ Comparison Extensions
-
-Enhanced comparison operations for `IComparable<T>`:
-
-- **Range Checking**: `IsBetween()` with inclusive/exclusive options
-- **Fluent Comparisons**: `IsGreaterThan()`, `IsLessThanOrEqual()`, etc.
-- **Utility Functions**: `ComparableTools.Min()`, `ComparableTools.Max()`
-
-### 🧮 Additional Utilities
-
-Specialized extensions for other base types:
-
-- **Byte Operations**: Bit manipulation, nibble extraction
-- **GUID Utilities**: `GetPlusOne()` for sequential GUIDs
-- **Version Extensions**: Version comparison and manipulation
-- **Task Extensions**: `TaskCompletionSource` and `Task` utilities
-- **Random Extensions**: Enhanced random number generation
-
----
-
-## 📖 Documentation Sections
-
-| Section | Description |
-|---------|-------------|
-| [API Reference](./api/Plugin.BaseTypeExtensions.html) | Complete API documentation |
-
----
 
 ## 🎯 Design Principles
 
-- **🛡️ Type Safety**: Generic constraints ensure compile-time safety
-- **⚡ Performance**: Optimized with modern .NET features and aggressive inlining
-- **🔄 Null Safety**: Explicit null handling with clear behavior
-- **📐 Consistency**: Uniform naming and parameter patterns across all extensions
-- **🌐 Modern .NET**: Built for .NET 9 with latest C# language features
-- **🧪 Thoroughly Tested**: Comprehensive test coverage with edge case handling
+### Performance First
+- **Aggressive Inlining**: Critical methods use `MethodImpl(MethodImplOptions.AggressiveInlining)`
+- **Zero Allocations**: Minimal memory allocation in hot paths
+- **Generic Constraints**: Compile-time type safety with `INumber<T>`, `IComparable<T>`
 
----
+### Type Safety
+- **Modern .NET**: Leverages .NET 9 features and nullable reference types
+- **Generic Constraints**: Prevents runtime type errors
+- **Null Safety**: Comprehensive null handling throughout
 
-## 🚀 Advanced Examples
+### Clean API Design
+- **Intuitive Names**: Methods named for clarity and discoverability
+- **Consistent Patterns**: Uniform naming and parameter conventions
+- **Fluent Interface**: Chain operations naturally
 
-### Working with Numeric Ranges
+### Comprehensive Testing
+- **95% Coverage**: Minimum test coverage requirement (386+ tests)
+- **Edge Cases**: Extensive edge case and error condition testing
+- **Thread Safety**: Deterministic testing for async operations
+- **Performance Tests**: Benchmarks for critical paths
 
+## � Advanced Examples
+
+### Data Processing Pipeline
 ```csharp
-// Generate custom numeric ranges
-var range = NumericRangeTools.GetRange(0.0, 10.0, 0.5);
-foreach (var value in range)
-{
-    Console.WriteLine($"Value: {value}");
-}
-
-// Percentage calculations with different types
-var progress = 75.PercentageToValue(0, 100);     // 75
-var normalized = 150.ValueToPercentage(100, 200); // 0.5
-var clamped = 150.Clamp(0, 100);                 // 100
+var results = await data
+    .EmptyIfNull()
+    .WhereIf(includeInactive, item => item.IsActive)
+    .DistinctBy(item => item.Id)
+    .ProcessInBatchesAsync(100, async batch =>
+    {
+        return await ProcessBatchAsync(batch)
+            .WithTimeoutInMs(30000);
+    });
 ```
 
-### Collection Synchronization
-
+### Configuration Validation
 ```csharp
-// Synchronize collections with custom logic
-sourceList.UpdateFrom(
-    targetList,
-    (source, target) => source.Id == target.Id,
-    onAdd: item => Console.WriteLine($"Added: {item}"),
-    onRemove: item => Console.WriteLine($"Removed: {item}")
-);
-
-// Dictionary operations with transformation
-var updates = sourceDict.CompareDictionaries(
-    (oldKey, newKey) => oldKey == newKey,
-    (oldValue, newValue) => oldValue.Equals(newValue),
-    oldDict,
-    newDict
-);
-```
-
-### Enum Flag Management
-
-```csharp
-[Flags]
-public enum FilePermissions
+public bool ValidateConfig(Dictionary<string, string> config)
 {
-    None = 0,
-    Read = 1,
-    Write = 2,
-    Execute = 4
-}
-
-// Fluent flag operations
-var permissions = FilePermissions.None
-    .SetFlag(FilePermissions.Read)
-    .SetFlag(FilePermissions.Write);
-
-// Get all enum values
-var allPermissions = EnumExtensions.AllAsArray<FilePermissions>();
-```
-
-### Assembly Resource Management
-
-```csharp
-// Extract embedded resources safely
-var assembly = Assembly.GetExecutingAssembly();
-var resourceFile = await assembly.MoveManifestResourceToCacheAsync(
-    "MyApp.Resources.config.json",
-    filename: "app-config.json",
-    fileAlreadyExistsBehavior: FileAlreadyExistsBehavior.Overwrite
-);
-
-// Discover types with attributes
-var servicesTypes = assembly.GetTypesWithAttribute<ServiceAttribute>();
-foreach (var (attribute, type) in servicesTypes)
-{
-    Console.WriteLine($"Service: {type.Name}, Config: {attribute.Configuration}");
+    return config
+        .EmptyIfNull()
+        .Where(kvp => kvp.Key.IsValidEmail() || kvp.Key.IsValidUrl())
+        .All(kvp => kvp.Value.NullIfDud() != null);
 }
 ```
 
----
+### Time-Based Operations
+```csharp
+public async Task<T> ExecuteWithProgressAsync<T>(
+    Func<CancellationToken, Task<T>> operation,
+    TimeSpan estimatedDuration,
+    IProgress<string> progress)
+{
+    var timeoutToken = CancellationToken.None.WithTimeout(estimatedDuration.Multiply(1.5));
+    var stopwatch = Stopwatch.StartNew();
 
-## 🔧 Development & Testing
+    var progressTask = Task.Run(async () =>
+    {
+        while (!timeoutToken.IsCancellationRequested)
+        {
+            var elapsed = stopwatch.Elapsed;
+            var remaining = estimatedDuration - elapsed;
+            progress?.Report($"Elapsed: {elapsed.ToReadableString()}, Est. Remaining: {remaining.ToReadableString()}");
 
-- **Framework**: .NET 9.0
-- **Testing**: xUnit + FluentAssertions with 90%+ coverage
-- **Performance**: Benchmarked with BenchmarkDotNet
-- **Build**: `dotnet build -c Release`
-- **Test**: `dotnet test -c Release`
+            await Task.Delay(TimeSpan.FromSeconds(1), timeoutToken);
+        }
+    });
 
----
+    try
+    {
+        return await operation(timeoutToken);
+    }
+    finally
+    {
+        stopwatch.Stop();
+    }
+}
+```
 
-## 📄 License
+### Async Coordination with Multiple Timeouts
+```csharp
+public async Task<ProcessingResult> CoordinatedProcessingAsync(
+    IEnumerable<ProcessingTask> tasks,
+    ProcessingOptions options)
+{
+    using var masterCts = new CancellationTokenSource();
+    var overallTimeout = masterCts.Token.WithTimeout(options.OverallTimeout);
 
-This library is licensed under the **MIT License** - see the [LICENSE.md](https://github.com/framinosona/Plugin.BaseTypeExtensions/blob/main/LICENSE.md) file for details.
+    var results = new ConcurrentBag<TaskResult>();
 
----
+    await tasks
+        .EmptyIfNull()
+        .ProcessInBatchesAsync(options.MaxConcurrency, async batch =>
+        {
+            var batchTasks = batch.Select(async task =>
+            {
+                var taskTimeout = overallTimeout.WithTimeout(options.TaskTimeout);
+
+                try
+                {
+                    var result = await task.ExecuteAsync(taskTimeout);
+                    results.Add(new TaskResult { Success = true, Result = result });
+                }
+                catch (OperationCanceledException) when (overallTimeout.IsCancellationRequested)
+                {
+                    results.Add(new TaskResult { Success = false, Error = "Overall timeout" });
+                }
+                catch (Exception ex)
+                {
+                    results.Add(new TaskResult { Success = false, Error = ex.Message });
+                }
+            });
+
+            await Task.WhenAll(batchTasks);
+        });
+
+    return new ProcessingResult
+    {
+        Results = results.ToList(),
+        Duration = masterCts.Token.AsTask().IsCompleted ? options.OverallTimeout : TimeSpan.Zero
+    };
+}
+```
+
+## 🏗️ Architecture
+
+The library follows a modular extension pattern:
+
+- **Extension Classes**: One class per base type (`StringExtensions`, `NumericExtensions`, etc.)
+- **Utility Classes**: Helper classes for complex operations (`ComparableTools`, `NumericRangeTools`)
+- **Performance Optimization**: Strategic use of aggressive inlining and generic constraints
+- **Comprehensive Testing**: 386+ tests covering all functionality with edge cases
+- **Thread-Safe Patterns**: Robust async and threading support
+
+## � Performance
+
+All extension methods are optimized for performance:
+
+- **Minimal Allocations**: String operations reuse buffers where possible
+- **Efficient Algorithms**: Optimized for common use cases
+- **Inlined Operations**: Hot paths use aggressive inlining
+- **Culture-Independent**: Reliable behavior across different system cultures
+- **Benchmarked**: Regular performance testing ensures optimization
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests on [GitHub](https://github.com/framinosona/Plugin.BaseTypeExtensions).
+We welcome contributions! The codebase follows strict quality standards:
 
----
+- **Zero Warnings**: `TreatWarningsAsErrors=true` enforced
+- **95% Test Coverage**: Comprehensive test coverage required
+- **Modern .NET**: Full use of .NET 9 features and patterns
+- **Performance Focus**: All additions must maintain performance standards
 
-*Built with ❤️ for modern .NET applications requiring powerful, type-safe base type extensions.*
+## 📄 License
+
+This project is licensed under the MIT License.

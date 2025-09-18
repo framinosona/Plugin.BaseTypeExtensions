@@ -99,16 +99,17 @@ public static partial class StringExtensions
     /// Determines whether the string represents a numeric value.
     /// </summary>
     /// <param name="input">The string to validate.</param>
+    /// <param name="formatProvider"></param>
     /// <returns>true if the string is numeric; otherwise, false.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsNumeric(this string? input)
+    public static bool IsNumeric(this string? input, IFormatProvider? formatProvider = null)
     {
         if (string.IsNullOrWhiteSpace(input))
         {
             return false;
         }
 
-        return double.TryParse(input, out _);
+        return double.TryParse(input, NumberStyles.Any, formatProvider ?? CultureInfo.InvariantCulture, out _);
     }
 
     /// <summary>

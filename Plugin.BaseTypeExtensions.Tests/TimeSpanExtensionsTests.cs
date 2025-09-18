@@ -248,4 +248,338 @@ public class TimeSpanExtensionsTests
         // Assert
         result.Should().Be(TimeSpan.FromMinutes(5)); // Should round down to 5
     }
+
+    // Additional edge case tests for better coverage
+    [Fact]
+    public void ToReadableString_ZeroTimeSpan_ReturnsZeroSeconds()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.Zero;
+
+        // Act
+        var result = timeSpan.ToReadableString();
+
+        // Assert
+        result.Should().Be("0 seconds");
+    }
+
+    [Fact]
+    public void ToReadableString_OnlyMilliseconds_ReturnsMilliseconds()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromMilliseconds(500);
+
+        // Act
+        var result = timeSpan.ToReadableString();
+
+        // Assert
+        result.Should().Be("500 milliseconds");
+    }
+
+    [Fact]
+    public void ToReadableString_OnlyMillisecond_ReturnsSingular()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromMilliseconds(1);
+
+        // Act
+        var result = timeSpan.ToReadableString();
+
+        // Assert
+        result.Should().Be("1 millisecond");
+    }
+
+    [Fact]
+    public void ToReadableString_SingularValues_UsesSingularForm()
+    {
+        // Arrange
+        var timeSpan = new TimeSpan(1, 1, 1, 1); // 1 day, 1 hour, 1 minute, 1 second
+
+        // Act
+        var result = timeSpan.ToReadableString();
+
+        // Assert
+        result.Should().Contain("1 day");
+        result.Should().Contain("1 hour");
+        result.Should().Contain("1 minute");
+        result.Should().Contain("1 second");
+        result.Should().NotContain("days");
+        result.Should().NotContain("hours");
+        result.Should().NotContain("minutes");
+        result.Should().NotContain("seconds");
+    }
+
+    [Fact]
+    public void ToShortString_ZeroTimeSpan_ReturnsZeroSeconds()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.Zero;
+
+        // Act
+        var result = timeSpan.ToShortString();
+
+        // Assert
+        result.Should().Be("0s");
+    }
+
+    [Fact]
+    public void ToShortString_OnlyMilliseconds_ReturnsMilliseconds()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromMilliseconds(250);
+
+        // Act
+        var result = timeSpan.ToShortString();
+
+        // Assert
+        result.Should().Be("250ms");
+    }
+
+    [Fact]
+    public void ToHumanReadable_LessThanMinute_ReturnsLessThanMinute()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromSeconds(30);
+
+        // Act
+        var result = timeSpan.ToHumanReadable();
+
+        // Assert
+        result.Should().Be("less than a minute");
+    }
+
+    [Fact]
+    public void ToHumanReadable_OneMinute_ReturnsSingular()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromMinutes(1);
+
+        // Act
+        var result = timeSpan.ToHumanReadable();
+
+        // Assert
+        result.Should().Be("about 1 minute");
+    }
+
+    [Fact]
+    public void ToHumanReadable_OneHour_ReturnsSingular()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromHours(1);
+
+        // Act
+        var result = timeSpan.ToHumanReadable();
+
+        // Assert
+        result.Should().Be("about 1 hour");
+    }
+
+    [Fact]
+    public void ToHumanReadable_OneDay_ReturnsSingular()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromDays(1);
+
+        // Act
+        var result = timeSpan.ToHumanReadable();
+
+        // Assert
+        result.Should().Be("about 1 day");
+    }
+
+    [Fact]
+    public void ToHumanReadable_OneMonth_ReturnsSingular()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromDays(30);
+
+        // Act
+        var result = timeSpan.ToHumanReadable();
+
+        // Assert
+        result.Should().Be("about 1 month");
+    }
+
+    [Fact]
+    public void ToHumanReadable_OneYear_ReturnsSingular()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromDays(365);
+
+        // Act
+        var result = timeSpan.ToHumanReadable();
+
+        // Assert
+        result.Should().Be("about 1 year");
+    }
+
+    [Fact]
+    public void ToHumanReadable_NegativeTimeSpan_UsesAbsoluteValue()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromHours(-2);
+
+        // Act
+        var result = timeSpan.ToHumanReadable();
+
+        // Assert
+        result.Should().Be("about 2 hours");
+    }
+
+    [Fact]
+    public void Divide_ByNegativeTwo_ReturnsCorrectResult()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromHours(4);
+
+        // Act
+        var result = timeSpan.Divide(-2.0);
+
+        // Assert
+        result.Should().Be(TimeSpan.FromHours(-2));
+    }
+
+    [Fact]
+    public void Average_NullCollection_ThrowsArgumentNullException()
+    {
+        // Arrange
+        IEnumerable<TimeSpan>? nullCollection = null;
+
+        // Act & Assert
+        var act = () => nullCollection!.Average();
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Average_EmptyCollection_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var emptyCollection = new TimeSpan[0];
+
+        // Act & Assert
+        var act = () => emptyCollection.Average();
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("Cannot calculate average of empty collection.");
+    }
+
+    [Fact]
+    public void Average_SingleItem_ReturnsSameItem()
+    {
+        // Arrange
+        var timeSpans = new[] { TimeSpan.FromHours(3) };
+
+        // Act
+        var result = timeSpans.Average();
+
+        // Assert
+        result.Should().Be(TimeSpan.FromHours(3));
+    }
+
+    [Fact]
+    public void RoundTo_ZeroInterval_ThrowsArgumentOutOfRangeException()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromMinutes(7);
+        var zeroInterval = TimeSpan.Zero;
+
+        // Act & Assert
+        var act = () => timeSpan.RoundTo(zeroInterval);
+        act.Should().Throw<ArgumentOutOfRangeException>()
+            .WithMessage("*Interval must be positive*")
+            .And.ParamName.Should().Be("interval");
+    }
+
+    [Fact]
+    public void RoundTo_NegativeInterval_ThrowsArgumentOutOfRangeException()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromMinutes(7);
+        var negativeInterval = TimeSpan.FromMinutes(-5);
+
+        // Act & Assert
+        var act = () => timeSpan.RoundTo(negativeInterval);
+        act.Should().Throw<ArgumentOutOfRangeException>()
+            .WithMessage("*Interval must be positive*")
+            .And.ParamName.Should().Be("interval");
+    }
+
+    [Fact]
+    public void RoundTo_ExactMultiple_ReturnsUnchanged()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromMinutes(10); // Exact multiple of 5
+        var interval = TimeSpan.FromMinutes(5);
+
+        // Act
+        var result = timeSpan.RoundTo(interval);
+
+        // Assert
+        result.Should().Be(timeSpan);
+    }
+
+    [Fact]
+    public void RoundTo_RoundUp_WorksCorrectly()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromMinutes(8); // Should round up to 10
+        var interval = TimeSpan.FromMinutes(5);
+
+        // Act
+        var result = timeSpan.RoundTo(interval);
+
+        // Assert
+        result.Should().Be(TimeSpan.FromMinutes(10));
+    }
+
+    [Fact]
+    public void ToWeeks_PartialWeek_ReturnsFlooredValue()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromDays(10); // 1 week + 3 days = 1 complete week
+
+        // Act
+        var result = timeSpan.ToWeeks();
+
+        // Assert
+        result.Should().Be(1);
+    }
+
+    [Fact]
+    public void ToWeeksExact_PartialWeek_ReturnsDecimalValue()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromDays(10.5); // 1.5 weeks
+
+        // Act
+        var result = timeSpan.ToWeeksExact();
+
+        // Assert
+        result.Should().BeApproximately(1.5, 0.001);
+    }
+
+    [Fact]
+    public void ToBusinessDays_ExactWeeks_ReturnsCorrectCount()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromDays(14); // 2 weeks = 10 business days
+
+        // Act
+        var result = timeSpan.ToBusinessDays();
+
+        // Assert
+        result.Should().Be(10);
+    }
+
+    [Fact]
+    public void ToBusinessDays_MoreThanFiveRemainingDays_CapsAtFive()
+    {
+        // Arrange
+        var timeSpan = TimeSpan.FromDays(12); // 1 week + 5 days = 5 + 5 = 10 business days
+
+        // Act
+        var result = timeSpan.ToBusinessDays();
+
+        // Assert
+        result.Should().Be(10); // 1 week * 5 + min(5, 5)
+    }
 }

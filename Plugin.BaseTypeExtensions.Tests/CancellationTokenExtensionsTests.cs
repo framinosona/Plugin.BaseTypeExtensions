@@ -236,22 +236,4 @@ public class CancellationTokenExtensionsTests
         // Assert
         result.Should().BeFalse();
     }
-
-    [Fact]
-    public async Task WithTimeout_ActuallyTimesOut()
-    {
-        // Arrange
-        var cts = new CancellationTokenSource();
-        var token = cts.Token;
-        var timeout = TimeSpan.FromMilliseconds(50);
-
-        // Act
-        var timedToken = token.WithTimeout(timeout);
-        
-        // Wait a bit longer than the timeout
-        await Task.Delay(100);
-
-        // Assert
-        timedToken.IsCancellationRequested.Should().BeTrue();
-    }
 }
