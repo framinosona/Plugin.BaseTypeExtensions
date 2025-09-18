@@ -1,9 +1,6 @@
 # Plugin.BaseTypeExtensions
 
-Welcome to **Plugin.BaseTypeExtensions*### 🚀 Advanced Utilities
-- **EnumExtensions** - Enum manipulation and flag operations | <xref:Plugin.BaseTypeExtensions.EnumExtensions>
-- **ComparableExtensions** - Generic comparison utilities | <xref:Plugin.BaseTypeExtensions.ComparableExtensions>
-- **TaskCompletionSourceExtensions** - Enhanced TaskCompletionSource operations | <xref:Plugin.BaseTypeExtensions.TaskCompletionSourceExtensions>a comprehensive .NET 9 library that provides powerful extension methods for base types, designed to enhance your development experience with clean, intuitive, and performance-optimized code.
+Welcome to **Plugin.BaseTypeExtensions**, a comprehensive .NET 9 library that provides powerful extension methods for base types, designed to enhance your development experience with clean, intuitive, and performance-optimized code.
 
 ## 🚀 Overview
 
@@ -72,10 +69,10 @@ This library extends .NET's fundamental types with a rich collection of utility 
 - **StreamExtensions** - Stream operations and utilities | <xref:Plugin.BaseTypeExtensions.StreamExtensions>
 - **ExceptionExtensions** - Exception handling and manipulation utilities | <xref:Plugin.BaseTypeExtensions.ExceptionExtensions>
 
-### � Advanced Utilities
-- **EnumExtensions** - Enum manipulation and flag operations
-- **ComparableExtensions** - Generic comparison utilities
-- **TaskCompletionSourceExtensions** - Enhanced TaskCompletionSource operations
+### 🚀 Advanced Utilities
+- **EnumExtensions** - Enum manipulation and flag operations | <xref:Plugin.BaseTypeExtensions.EnumExtensions>
+- **ComparableExtensions** - Generic comparison utilities | <xref:Plugin.BaseTypeExtensions.ComparableExtensions>
+- **TaskCompletionSourceExtensions** - Enhanced TaskCompletionSource operations | <xref:Plugin.BaseTypeExtensions.TaskCompletionSourceExtensions>
 
 ### 🛠️ Utility Classes
 - **ComparableTools** - Utility methods for comparable operations | <xref:Plugin.BaseTypeExtensions.ComparableTools>
@@ -146,7 +143,7 @@ await ProcessDataAsync(timeoutToken);
 - **Thread Safety**: Deterministic testing for async operations
 - **Performance Tests**: Benchmarks for critical paths
 
-## 💡 Advanced Examples
+## 🚀 Advanced Examples
 
 ### Data Processing Pipeline
 ```csharp
