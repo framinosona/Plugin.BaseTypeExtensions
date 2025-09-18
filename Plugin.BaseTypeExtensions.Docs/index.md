@@ -1,6 +1,9 @@
 # Plugin.BaseTypeExtensions
 
-Welcome to **Plugin.BaseTypeExtensions** - a comprehensive .NET 9 library that provides powerful extension methods for base types, designed to enhance your development experience with clean, intuitive, and performance-optimized code.
+Welcome to **Plugin.BaseTypeExtensions*### 🚀 Advanced Utilities
+- **EnumExtensions** - Enum manipulation and flag operations | <xref:Plugin.BaseTypeExtensions.EnumExtensions>
+- **ComparableExtensions** - Generic comparison utilities | <xref:Plugin.BaseTypeExtensions.ComparableExtensions>
+- **TaskCompletionSourceExtensions** - Enhanced TaskCompletionSource operations | <xref:Plugin.BaseTypeExtensions.TaskCompletionSourceExtensions>a comprehensive .NET 9 library that provides powerful extension methods for base types, designed to enhance your development experience with clean, intuitive, and performance-optimized code.
 
 ## 🚀 Overview
 
@@ -9,7 +12,7 @@ This library extends .NET's fundamental types with a rich collection of utility 
 ## 📋 Complete Feature Documentation
 
 ### 🔤 String & Text Processing
-- **[StringExtensions](StringExtensions.md)** - Comprehensive string manipulation, validation, transformation, and utility methods (40+ methods)
+- **<xref:Plugin.BaseTypeExtensions.StringExtensions>** - Comprehensive string manipulation, validation, transformation, and utility methods (40+ methods) | <xref:Plugin.BaseTypeExtensions.StringExtensions>
   - Validation (email, URL, numeric)
   - Case conversion (camelCase, PascalCase, kebab-case, snake_case)
   - Manipulation (truncation, padding, whitespace handling)
@@ -17,54 +20,57 @@ This library extends .NET's fundamental types with a rich collection of utility 
   - Analysis (word count, character analysis, substring extraction)
 
 ### 🔢 Numeric & Mathematical Operations
-- **[NumericExtensions](NumericExtensions.md)** - Type-safe numeric operations for all `INumber<T>` types
+- **<xref:Plugin.BaseTypeExtensions.NumericExtensions>** - Type-safe numeric operations for all `INumber<T>` types | <xref:Plugin.BaseTypeExtensions.NumericExtensions>
   - Range operations (clamp, percentage calculations)
   - Angle conversions (degree/radian)
   - Type conversions with safety
   - Generic constraints for compile-time safety
 
 ### 📋 Collection & LINQ Operations
-- **[EnumerableExtensions](EnumerableExtensions.md)** - Advanced LINQ-style operations and utilities
+- **<xref:Plugin.BaseTypeExtensions.EnumerableExtensions>** - Advanced LINQ-style operations and utilities | <xref:Plugin.BaseTypeExtensions.EnumerableExtensions>
   - Batch processing and chunking
   - Conditional operations (WhereIf, SelectIf)
   - Advanced LINQ operations (DistinctBy, MaxBy, MinBy)
   - Safety extensions (EmptyIfNull, IsNullOrEmpty)
 
 ### ⚡ Async & Threading
-- **[TaskExtensions](TaskExtensions.md)** - Advanced async operations and timeout management
+- **<xref:Plugin.BaseTypeExtensions.TaskExtensions>** - Advanced async operations and timeout management | <xref:Plugin.BaseTypeExtensions.TaskExtensions>
   - Timeout operations with cancellation support
   - Configurable timeout management
   - Robust error handling patterns
-- **[CancellationTokenExtensions](CancellationTokenExtensions.md)** - Advanced timeout and async operations for CancellationToken
+- **<xref:Plugin.BaseTypeExtensions.CancellationTokenExtensions>** - Advanced timeout and async operations for CancellationToken | <xref:Plugin.BaseTypeExtensions.CancellationTokenExtensions>
   - Timeout creation and management
   - Task conversion and coordination
   - Combined cancellation patterns
 
 ### ⏰ Time & Date Operations
-- **[TimeSpanExtensions](TimeSpanExtensions.md)** - Comprehensive TimeSpan operations and formatting
+- **<xref:Plugin.BaseTypeExtensions.TimeSpanExtensions>** - Comprehensive TimeSpan operations and formatting | <xref:Plugin.BaseTypeExtensions.TimeSpanExtensions>
   - Human-readable formatting (ToReadableString, ToHumanReadable)
   - Arithmetic operations (multiply, divide, percentage)
   - Rounding operations (RoundToNearest, RoundUp, RoundDown)
   - Conversion and precision methods
 
 ### 📅 Date & Time Extensions
-- **DateTimeExtensions** - DateTime manipulation and formatting utilities
-- **DateOnlyExtensions** - DateOnly type extensions for modern date handling
-- **TimeOnlyExtensions** - TimeOnly type extensions for time-specific operations
+- **DateTimeExtensions** - DateTime manipulation and formatting utilities | <xref:Plugin.BaseTypeExtensions.DateTimeExtensions>
+- **DateOnlyExtensions** - DateOnly type extensions for modern date handling | <xref:Plugin.BaseTypeExtensions.DateOnlyExtensions>
+- **TimeOnlyExtensions** - TimeOnly type extensions for time-specific operations | <xref:Plugin.BaseTypeExtensions.TimeOnlyExtensions>
 
 ### 🗂️ Collection Specific Extensions
-- **ListExtensions** - List-specific operations and utilities
-- **DictionaryExtensions** - Dictionary manipulation and safety extensions
+- **ListExtensions** - List-specific operations and utilities | <xref:Plugin.BaseTypeExtensions.ListExtensions>
+- **DictionaryExtensions** - Dictionary manipulation and safety extensions | <xref:Plugin.BaseTypeExtensions.DictionaryExtensions>
 
 ### 🔍 Reflection & Metadata
-- **AssemblyExtensions** - Assembly information and metadata extraction
-- **ReflectionExtensions** - Advanced reflection utilities and type operations
+- **AssemblyExtensions** - Assembly information and metadata extraction | <xref:Plugin.BaseTypeExtensions.AssemblyExtensions>
+- **ReflectionExtensions** - Advanced reflection utilities and type operations | <xref:Plugin.BaseTypeExtensions.ReflectionExtensions>
 
 ### 🎲 Utility Extensions
-- **RandomExtensions** - Enhanced random number generation and utilities
-- **GuidExtensions** - GUID manipulation and validation
-- **VersionExtensions** - Version comparison and formatting
-- **ByteExtensions** - Byte array operations and conversions
+- **RandomExtensions** - Enhanced random number generation and utilities | <xref:Plugin.BaseTypeExtensions.RandomExtensions>
+- **GuidExtensions** - GUID manipulation and validation | <xref:Plugin.BaseTypeExtensions.GuidExtensions>
+- **VersionExtensions** - Version comparison and formatting | <xref:Plugin.BaseTypeExtensions.VersionExtensions>
+- **ByteExtensions** - Byte array operations and conversions | <xref:Plugin.BaseTypeExtensions.ByteExtensions>
+- **UriExtensions** - URI manipulation and validation utilities | <xref:Plugin.BaseTypeExtensions.UriExtensions>
+- **StreamExtensions** - Stream operations and utilities | <xref:Plugin.BaseTypeExtensions.StreamExtensions>
+- **ExceptionExtensions** - Exception handling and manipulation utilities | <xref:Plugin.BaseTypeExtensions.ExceptionExtensions>
 
 ### � Advanced Utilities
 - **EnumExtensions** - Enum manipulation and flag operations
@@ -72,8 +78,8 @@ This library extends .NET's fundamental types with a rich collection of utility 
 - **TaskCompletionSourceExtensions** - Enhanced TaskCompletionSource operations
 
 ### 🛠️ Utility Classes
-- **ComparableTools** - Utility methods for comparable operations
-- **NumericRangeTools** - Numeric range generation and manipulation
+- **ComparableTools** - Utility methods for comparable operations | <xref:Plugin.BaseTypeExtensions.ComparableTools>
+- **NumericRangeTools** - Numeric range generation and manipulation | <xref:Plugin.BaseTypeExtensions.NumericRangeTools>
 
 ## 🏁 Quick Start
 
