@@ -6,47 +6,6 @@ Welcome to **Plugin.BaseTypeExtensions**, a comprehensive .NET 9 library that pr
 
 This library extends .NET's fundamental types with a rich collection of utility methods, following modern .NET patterns and leveraging advanced generic constraints like `INumber<T>` and `IComparable<T>` for type safety and performance.
 
-## 📋 Complete Feature Documentation
-
-### 🔤 String & Text Processing
-- **<xref:Plugin.BaseTypeExtensions.StringExtensions>** - Comprehensive string manipulation, validation, transformation, and utility methods (40+ methods) | <xref:Plugin.BaseTypeExtensions.StringExtensions>
-  - Validation (email, URL, numeric)
-  - Case conversion (camelCase, PascalCase, kebab-case, snake_case)
-  - Manipulation (truncation, padding, whitespace handling)
-  - Encoding (Base64, HTML encoding/decoding)
-  - Analysis (word count, character analysis, substring extraction)
-
-### 🔢 Numeric & Mathematical Operations
-- **<xref:Plugin.BaseTypeExtensions.NumericExtensions>** - Type-safe numeric operations for all `INumber<T>` types | <xref:Plugin.BaseTypeExtensions.NumericExtensions>
-  - Range operations (clamp, percentage calculations)
-  - Angle conversions (degree/radian)
-  - Type conversions with safety
-  - Generic constraints for compile-time safety
-
-### 📋 Collection & LINQ Operations
-- **<xref:Plugin.BaseTypeExtensions.EnumerableExtensions>** - Advanced LINQ-style operations and utilities | <xref:Plugin.BaseTypeExtensions.EnumerableExtensions>
-  - Batch processing and chunking
-  - Conditional operations (WhereIf, SelectIf)
-  - Advanced LINQ operations (DistinctBy, MaxBy, MinBy)
-  - Safety extensions (EmptyIfNull, IsNullOrEmpty)
-
-### ⚡ Async & Threading
-- **<xref:Plugin.BaseTypeExtensions.TaskExtensions>** - Advanced async operations and timeout management | <xref:Plugin.BaseTypeExtensions.TaskExtensions>
-  - Timeout operations with cancellation support
-  - Configurable timeout management
-  - Robust error handling patterns
-- **<xref:Plugin.BaseTypeExtensions.CancellationTokenExtensions>** - Advanced timeout and async operations for CancellationToken | <xref:Plugin.BaseTypeExtensions.CancellationTokenExtensions>
-  - Timeout creation and management
-  - Task conversion and coordination
-  - Combined cancellation patterns
-
-### ⏰ Time & Date Operations
-- **<xref:Plugin.BaseTypeExtensions.TimeSpanExtensions>** - Comprehensive TimeSpan operations and formatting | <xref:Plugin.BaseTypeExtensions.TimeSpanExtensions>
-  - Human-readable formatting (ToReadableString, ToHumanReadable)
-  - Arithmetic operations (multiply, divide, percentage)
-  - Rounding operations (RoundToNearest, RoundUp, RoundDown)
-  - Conversion and precision methods
-
 ### 📅 Date & Time Extensions
 - **DateTimeExtensions** - DateTime manipulation and formatting utilities | <xref:Plugin.BaseTypeExtensions.DateTimeExtensions>
 - **DateOnlyExtensions** - DateOnly type extensions for modern date handling | <xref:Plugin.BaseTypeExtensions.DateOnlyExtensions>
