@@ -146,7 +146,7 @@ await ProcessDataAsync(timeoutToken);
 - **Thread Safety**: Deterministic testing for async operations
 - **Performance Tests**: Benchmarks for critical paths
 
-## � Advanced Examples
+## 💡 Advanced Examples
 
 ### Data Processing Pipeline
 ```csharp
@@ -260,7 +260,7 @@ The library follows a modular extension pattern:
 - **Comprehensive Testing**: 386+ tests covering all functionality with edge cases
 - **Thread-Safe Patterns**: Robust async and threading support
 
-## � Performance
+## ⚡️ Performance
 
 All extension methods are optimized for performance:
 
