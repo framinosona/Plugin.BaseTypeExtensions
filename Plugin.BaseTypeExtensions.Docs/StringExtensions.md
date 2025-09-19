@@ -14,12 +14,12 @@ The `StringExtensions` class offers 40+ extension methods for string operations 
 
 ### Basic Utilities
 
-#### `NullIfDud(string? input)`
+#### `NullIfEmptyOrWhiteSpace(string? input)`
 Returns null if the string is null, empty, or contains only whitespace.
 
 ```csharp
-string? result = "   ".NullIfDud(); // null
-string? result = "hello".NullIfDud(); // "hello"
+string? result = "   ".NullIfEmptyOrWhiteSpace(); // null
+string? result = "hello".NullIfEmptyOrWhiteSpace(); // "hello"
 ```
 
 #### `RemoveSpecialCharacters(string? input)`
@@ -162,7 +162,7 @@ string decoded = "SGVsbG8gV29ybGQ=".FromBase64(); // "Hello World"
 
 ## Best Practices
 
-1. **Choose Appropriate Methods**: Use `NullIfDud()` for clean null handling
+1. **Choose Appropriate Methods**: Use `NullIfEmptyOrWhiteSpace()` for clean null handling
 2. **Performance**: Chain operations efficiently with early returns
 3. **Validation**: Use validation methods for user input processing
 4. **Encoding**: Always specify encoding for Base64 operations when needed

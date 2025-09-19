@@ -93,7 +93,7 @@ using Plugin.BaseTypeExtensions;
 
 // String operations
 string email = "  user@EXAMPLE.com  ";
-string clean = email.NullIfDud()?.Trim().ToLowerInvariant();
+string clean = email.NullIfEmptyOrWhiteSpace()?.Trim().ToLowerInvariant();
 bool isValid = clean.IsValidEmail(); // true
 
 // Numeric operations
@@ -165,7 +165,7 @@ public bool ValidateConfig(Dictionary<string, string> config)
     return config
         .EmptyIfNull()
         .Where(kvp => kvp.Key.IsValidEmail() || kvp.Key.IsValidUrl())
-        .All(kvp => kvp.Value.NullIfDud() != null);
+        .All(kvp => kvp.Value.NullIfEmptyOrWhiteSpace() != null);
 }
 ```
 

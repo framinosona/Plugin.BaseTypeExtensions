@@ -41,7 +41,7 @@ public static T FastOperation<T>(this T input) where T : INumber<T>
 ### Code Quality Infrastructure
 - **Null safety**: Always handle null inputs gracefully, return empty or null as appropriate
 - **Documentation**: Every public method has XML documentation with `<summary>`, parameters, returns, and exceptions
-- **Naming**: Use descriptive method names like `NullIfDud()`, `RemoveSpecialCharacters()`, `WithTimeoutInMs()`
+- **Naming**: Use descriptive method names like `NullIfEmptyOrWhiteSpace()`, `RemoveSpecialCharacters()`, `WithTimeoutInMs()`
 - **Type safety**: Prefer compile-time safety with generic constraints over runtime checks
 - **Error handling**: Meaningful exceptions with context and helpful error messages
 
@@ -72,13 +72,13 @@ public void Clamp_ValueWithinRange_ReturnsOriginalValue()
 
 // Null handling test
 [Fact]
-public void NullIfDud_WithNullInput_ReturnsNull()
+public void NullIfEmptyOrWhiteSpace_WithNullInput_ReturnsNull()
 {
     // Arrange
     string? input = null;
 
     // Act
-    string? result = input.NullIfDud();
+    string? result = input.NullIfEmptyOrWhiteSpace();
 
     // Assert
     result.Should().BeNull();
@@ -206,7 +206,7 @@ dotnet docfx build Plugin.BaseTypeExtensions.Docs/docfx.json --output Plugin.Bas
 string ProcessInput(string? input)
 {
     return input
-        .NullIfDud() ?? "default"
+        .NullIfEmptyOrWhiteSpace() ?? "default"
         .RemoveSpecialCharacters()
         .CollapseWhitespace()
         .Truncate(50);

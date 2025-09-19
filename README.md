@@ -34,7 +34,7 @@ using Plugin.BaseTypeExtensions;
 
 // Null-safe string operations
 string? input = GetUserInput();
-string result = input.NullIfDud() ?? "default value";
+string result = input.NullIfEmptyOrWhiteSpace() ?? "default value";
 
 // Character filtering
 string clean = "Hello@World!#123".RemoveSpecialCharacters(); // "HelloWorld123"

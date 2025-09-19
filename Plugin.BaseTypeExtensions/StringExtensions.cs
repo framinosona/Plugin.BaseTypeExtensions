@@ -20,7 +20,7 @@ public static partial class StringExtensions
     /// <param name="input">The string to check.</param>
     /// <returns>null if the string is a "dud" (null/empty/whitespace), otherwise the original string.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string? NullIfDud(this string? input)
+    public static string? NullIfEmptyOrWhiteSpace(this string? input)
     {
         return string.IsNullOrWhiteSpace(input) ? null : input;
     }
