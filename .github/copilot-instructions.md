@@ -136,6 +136,7 @@ Projects use these variables in `.csproj`:
 - `$(Project_Description)` - Package/assembly description
 - `$(Project_Copyright)` - Author/owner information
 - `$(Project_Tags)` - NuGet package tags
+- `$(Project_Url)` - Repository URL
 
 ## Development Workflows
 

@@ -2,6 +2,7 @@
 
   <!-- ==================== VARIABLES ==================== -->
   <PropertyGroup>
+    <Project_Url>git@github.com:framinosona/Plugin.BaseTypeExtensions.git</Project_Url>
     <Project_Name>Plugin.BaseTypeExtensions</Project_Name>
     <Project_Tags>Plugin;BaseTypeExtensions;Tools;Toolkit</Project_Tags>
     <Project_Copyright>Francois Raminosona</Project_Copyright>
