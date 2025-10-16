@@ -1,6 +1,12 @@
 # 🔧 Plugin.BaseTypeExtensions
 
-[![CI](https://github.com/framinosona/Plugin.BaseTypeExtensions/actions/workflows/ci.yml/badge.svg)](https://github.com/framinosona/Plugin.BaseTypeExtensions/actions/workflows/ci.yml)
+<div align="center">
+
+[![Icon](icon.png)](https://github.com/framinosona/Plugin.ByteArrays)
+
+</div>
+
+[![CI](https://img.shields.io/github/actions/workflow/status/framinosona/Plugin.BaseTypeExtensions/ci.yml?logo=github)](https://github.com/framinosona/Plugin.BaseTypeExtensions/actions/workflows/ci.yml)
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![NuGet](https://img.shields.io/nuget/v/Plugin.BaseTypeExtensions?logo=nuget&color=004880)](https://www.nuget.org/packages/Plugin.BaseTypeExtensions)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/Plugin.BaseTypeExtensions?logo=nuget&color=004880)](https://www.nuget.org/packages/Plugin.BaseTypeExtensions)
