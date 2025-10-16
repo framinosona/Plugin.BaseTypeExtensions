@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!-- Note : This is read BEFORE the initial project file -->
+
+  <!-- ==================== SELF REFERENCE ==================== -->
+  <ItemGroup>
+    <None Include="$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), $(MSBuildThisFile)))" Pack="false" />
+  </ItemGroup>
+
+  <!-- ==================== UNIVERSAL ARTIFACTS CONFIGURATION ==================== -->
+  <PropertyGroup>
+    <!-- Central artifacts path configuration - can be overridden via command line -->
+    <!-- Use MSBuild's built-in artifacts system when available -->
+    <UseArtifactsOutput Condition="'$(UseArtifactsOutput)' == ''">true</UseArtifactsOutput>
+
+    <!-- Fallback artifacts path for explicit configuration -->
+    <ArtifactsPath Condition="'$(ArtifactsPath)' == ''">$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), 'output'))</ArtifactsPath>
+
+    <!-- Define standard subdirectories within artifacts -->
+    <ArtifactsPackagesPath>$([System.IO.Path]::Combine($(ArtifactsPath), 'packages'))</ArtifactsPackagesPath>
+    <ArtifactsTestsPath>$([System.IO.Path]::Combine($(ArtifactsPath), 'tests'))</ArtifactsTestsPath>
+    <ArtifactsBinPath>$([System.IO.Path]::Combine($(ArtifactsPath), 'bin'))</ArtifactsBinPath>
+    <ArtifactsObjPath>$([System.IO.Path]::Combine($(ArtifactsPath), 'obj'))</ArtifactsObjPath>
+
+    <PackageOutputPath>$(ArtifactsPackagesPath)</PackageOutputPath>
+
+    <TestResultsDirectory>$(ArtifactsTestsPath)</TestResultsDirectory>
+    <CoverageDirectory>$(ArtifactsTestsPath)</CoverageDirectory>
+    <CoverletOutput>$(ArtifactsTestsPath)</CoverletOutput>
+    <VSTestLogger>trx;LogFileName=$(MSBuildProjectName).trx</VSTestLogger>
+    <VSTestResultsDirectory>$(ArtifactsTestsPath)</VSTestResultsDirectory>
+  </PropertyGroup>
+
+  <!-- ================== HOST MACHINE DETECTION ==================== -->
+  <PropertyGroup>
+    <IsHostMachineOSX>false</IsHostMachineOSX>
+    <IsHostMachineOSX Condition=" $([System.OperatingSystem]::IsMacOS()) ">true</IsHostMachineOSX>
+
+    <IsHostMachineLinux>false</IsHostMachineLinux>
+    <IsHostMachineLinux Condition=" $([System.OperatingSystem]::IsLinux()) ">true</IsHostMachineLinux>
+
+    <IsHostMachineWindows>false</IsHostMachineWindows>
+    <IsHostMachineWindows Condition=" $([System.OperatingSystem]::IsWindows()) ">true</IsHostMachineWindows>
+
+    <IsHostMachineUnix>false</IsHostMachineUnix>
+    <IsHostMachineUnix Condition=" $(IsHostMachineOSX) Or $(IsHostMachineLinux) ">true</IsHostMachineUnix>
+  </PropertyGroup>
+
+  <!-- ==================== CI/CD ==================== -->
+  <PropertyGroup>
+    <!-- see : https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#continuousintegrationbuild -->
+    <ContinuousIntegrationBuild Condition=" '$(TF_BUILD)'       == 'true' ">true</ContinuousIntegrationBuild>
+    <ContinuousIntegrationBuild Condition=" '$(GITLAB_CI)'      == 'true' ">true</ContinuousIntegrationBuild>
+    <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
+
+    <!-- When building on CI, use Release configuration -->
+    <Configuration Condition=" '$(Configuration)' == '' AND '$(ContinuousIntegrationBuild)' == 'true' ">Release</Configuration>
+  </PropertyGroup>
+
+  <!-- ==================== ARCHIVED FILES ======================= -->
+  <ItemGroup>
+    <Compile Remove="**/Archive/**/*.*" />
+    <None Include="**/Archive/**/*.*" Pack="false" />
+  </ItemGroup>
+
+  <!-- ==================== DOCUMENTATION ======================= -->
+  <ItemGroup>
+    <Compile Remove="**/Documentation/**/*.*" />
+    <None Include="**/Documentation/**/*.*" Pack="false" />
+  </ItemGroup>
+</Project>

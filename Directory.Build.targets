@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <!-- Note : This is read AFTER the initial project file -->
+
+  <!-- ==================== SELF REF ==================== -->
+  <ItemGroup>
+    <None Include="$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), $(MSBuildThisFile)))" Pack="false" />
+  </ItemGroup>
+
+  <!-- ==================== VERSION ==================== -->
+  <Import Project="$(Version_Props_Path)" Condition="Exists('$(Version_Props_Path)')" />
+  <PropertyGroup>
+    <!-- Default version, when building locally -->
+    <Version_Full Condition=" '$(Version_Full)' == '' ">1.0.0</Version_Full>
+    <Version_Assembly Condition=" '$(Version_Assembly)' == '' ">$(Version_Full).0</Version_Assembly>
+
+    <!-- Apply Version parts according to packaging standards -->
+    <Version>$(Version_Full)</Version>
+    <PackageVersion>$(Version_Full)</PackageVersion>
+
+    <AssemblyInformationalVersion>$(Version_Full)</AssemblyInformationalVersion>
+    <AssemblyVersion>$(Version_Assembly)</AssemblyVersion>
+    <AssemblyFileVersion>$(Version_Assembly)</AssemblyFileVersion>
+
+    <ApplicationDisplayVersion>$(Version_Full)</ApplicationDisplayVersion>
+    <ApplicationVersion>$(Version_Revision)</ApplicationVersion>
+  </PropertyGroup>
+
+  <!-- ==================== LOGGING ==================== -->
+  <Target Name="PrintBuildInfo" BeforeTargets="CoreCompile">
+    <Message Importance="High" Text="Building : $(PackageId) - $(TargetFramework) - $(AssemblyFileVersion)" />
+    <Message Importance="High" Text="PackageOutputPath   : $(PackageOutputPath)" />
+  </Target>
+
+  <!-- ==================== PACK ==================== -->
+  <PropertyGroup>
+    <PackageIconPath>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), `icon.png`))</PackageIconPath>
+    <PackageLicencePath>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), `LICENSE`))</PackageLicencePath>
+    <PackageReadMePath>$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), `README.md`))</PackageReadMePath>
+
+    <PackageIcon Condition="Exists('$(PackageIconPath)')">icon.png</PackageIcon>
+    <PackageLicense Condition="Exists('$(PackageLicencePath)')">LICENSE</PackageLicense>
+    <PackageReadmeFile Condition="Exists('$(PackageReadMePath)')">README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(PackageIconPath)" Pack="true" PackagePath="\" Condition="Exists('$(PackageIconPath)')" />
+    <None Include="$(PackageReadMePath)" Pack="true" PackagePath="\" Condition="Exists('$(PackageReadMePath)')" />
+    <None Include="$(PackageLicencePath)" Pack="true" PackagePath="\" Condition="Exists('$(PackageLicencePath)')" />
+  </ItemGroup>
+</Project>
