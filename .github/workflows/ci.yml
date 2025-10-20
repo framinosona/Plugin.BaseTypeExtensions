@@ -82,7 +82,7 @@ jobs:
           path: ${{ github.workspace }}/${{ env.PROJECT_NAME }}.slnx
           configuration: Release
           no-restore: true
-          arguments: >
+          arguments: |
             -p:Version_Props_Path=${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Version/version.props
             -p:GeneratePackageOnBuild=true
             -p:PackageOutputPath=${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Packages
@@ -104,7 +104,7 @@ jobs:
           no-build: true
           logger: 'trx;LogFileName=test-results.trx'
           results-directory: ${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests
-          arguments: >
+          arguments: |
             -p:TestOutputPath=${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests
             -p:CollectCoverage=true
             -p:CoverletOutputFormat=cobertura
