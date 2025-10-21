@@ -123,7 +123,9 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action/linux@v2
         with:
           files: |
-            ${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests/test-results.trx
+            ${{ env.PROJECT_NAME }}.Output/Tests/**/*.xml
+            ${{ env.PROJECT_NAME }}.Output/Tests/**/*.trx
+            ${{ env.PROJECT_NAME }}.Output/Tests/**/*.json
 
       # ============================ DOCS ============================
       - name: "📚 Build documentation metadata"
