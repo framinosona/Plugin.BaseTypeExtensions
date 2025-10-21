@@ -116,8 +116,7 @@ jobs:
         with:
           name: tests
           path: |
-            ${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests/coverage.cobertura.xml
-            ${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests/test-results.trx
+            ${{ env.PROJECT_NAME }}.Output/Tests/
 
       - name: '📊 Publish Test Results'
         uses: EnricoMi/publish-unit-test-result-action/linux@v2

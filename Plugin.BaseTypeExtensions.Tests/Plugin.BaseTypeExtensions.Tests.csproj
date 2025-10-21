@@ -38,7 +38,10 @@
   <PropertyGroup>
     <TestOutputPath Condition="'$(TestOutputPath)' == ''">$([System.IO.Path]::Combine($(MSBuildThisFileDirectory), `../output/tests`))</TestOutputPath>
 
+    <TestResultsDirectory>$(TestOutputPath)</TestResultsDirectory>
+    <CoverageDirectory>$(TestOutputPath)</CoverageDirectory>
+    <CoverletOutput>$(TestOutputPath)</CoverletOutput>
+    <VSTestLogger>trx;LogFileName=$(MSBuildProjectName).trx</VSTestLogger>
     <VSTestResultsDirectory>$(TestOutputPath)</VSTestResultsDirectory>
-    <CoverletOutput>$(TestOutputPath)/</CoverletOutput>
   </PropertyGroup>
 </Project>
