@@ -108,8 +108,7 @@ jobs:
             -p:TestOutputPath=${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests \
             -p:CollectCoverage=true \
             -p:CoverletOutputFormat=cobertura \
-            -p:CoverletOutput=${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests/coverage.cobertura.xml \
-            '-p:Exclude="[xunit.*]*,[FluentAssertions.*]*,[${{ env.PROJECT_NAME }}.Tests]*"'
+            -p:CoverletOutput=${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests/coverage.cobertura.xml
           show-summary: true
 
       - name: '📦 Upload test artifacts'
