@@ -41,7 +41,7 @@
     <TestResultsDirectory>$(TestOutputPath)</TestResultsDirectory>
     <CoverageDirectory>$(TestOutputPath)</CoverageDirectory>
     <CoverletOutput>$(TestOutputPath)</CoverletOutput>
-    <VSTestLogger>trx;LogFileName=$(MSBuildProjectName).trx</VSTestLogger>
+    <VSTestLogger>trx;LogFileName=test-results.trx</VSTestLogger>
     <VSTestResultsDirectory>$(TestOutputPath)</VSTestResultsDirectory>
   </PropertyGroup>
 </Project>
