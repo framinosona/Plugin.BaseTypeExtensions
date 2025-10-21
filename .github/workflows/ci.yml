@@ -116,7 +116,7 @@ jobs:
         with:
           name: tests
           path: |
-            ${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests/coverage.cobertura.xml \
+            ${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests/coverage.cobertura.xml
             ${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests/test-results.trx
 
       - name: '📊 Publish Test Results'
