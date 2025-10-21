@@ -83,8 +83,8 @@ jobs:
           configuration: Release
           no-restore: true
           arguments: |
-            -p:Version_Props_Path=${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Version/version.props
-            -p:GeneratePackageOnBuild=true
+            -p:Version_Props_Path=${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Version/version.props \
+            -p:GeneratePackageOnBuild=true \
             -p:PackageOutputPath=${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Packages
           show-summary: true
 
@@ -105,10 +105,10 @@ jobs:
           logger: 'trx;LogFileName=test-results.trx'
           results-directory: ${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests
           arguments: |
-            -p:TestOutputPath=${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests
-            -p:CollectCoverage=true
-            -p:CoverletOutputFormat=cobertura
-            -p:CoverletOutput=${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests/coverage.cobertura.xml
+            -p:TestOutputPath=${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests \
+            -p:CollectCoverage=true \
+            -p:CoverletOutputFormat=cobertura \
+            -p:CoverletOutput=${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests/coverage.cobertura.xml \
             '-p:Exclude="[xunit.*]*,[FluentAssertions.*]*,[${{ env.PROJECT_NAME }}.Tests]*"'
           show-summary: true
 
@@ -117,7 +117,7 @@ jobs:
         with:
           name: tests
           path: |
-            ${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests/coverage.cobertura.xml
+            ${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests/coverage.cobertura.xml \
             ${{ github.workspace }}/${{ env.PROJECT_NAME }}.Output/Tests/test-results.trx
 
       - name: '📊 Publish Test Results'
