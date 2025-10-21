@@ -124,7 +124,6 @@ jobs:
         with:
           files: |
             ${{ env.PROJECT_NAME }}.Output/Tests/test-results.trx
-            ${{ env.PROJECT_NAME }}.Output/Tests/coverage.cobertura.xml
 
       # ============================ DOCS ============================
       - name: "📚 Build documentation metadata"
