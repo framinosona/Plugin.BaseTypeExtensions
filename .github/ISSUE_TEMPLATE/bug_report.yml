@@ -26,11 +26,11 @@ body:
       description: Provide minimal code that reproduces the issue
       placeholder: |
         ```csharp
-        using Plugin.BaseTypeExtensions;
+        using YourNamespace;
 
         // Minimal code that demonstrates the bug
-        string input = "test";
-        var result = input.SomeExtensionMethod(); // This causes the issue
+        var input = "example input";
+        var result = input.SomeMethod(); // This causes the issue
         ```
       render: csharp
     validations:

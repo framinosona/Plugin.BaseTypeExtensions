@@ -16,17 +16,15 @@ body:
       label: Feature Type
       description: What type of feature is this?
       options:
-        - "New string extension method"
-        - "New numeric extension method"
-        - "New enum extension method"
-        - "New collection extension method"
-        - "New temporal (DateTime/DateOnly) extension"
-        - "New reflection/assembly extension"
-        - "New comparison extension"
+        - "New API method/functionality"
         - "Performance optimization"
-        - "New utility class"
+        - "New data type support"
+        - "Error handling improvement"
+        - "Configuration option"
+        - "Integration support"
         - "API improvement"
         - "Documentation enhancement"
+        - "Developer experience"
         - "Other"
     validations:
       required: true
@@ -75,17 +73,13 @@ body:
       description: Show how this feature would be used in code
       placeholder: |
         ```csharp
-        using Plugin.BaseTypeExtensions;
+        using YourNamespace;
 
         // Example of how the new feature would be used
-        string text = "Hello World";
-        int number = 42;
-        var myEnum = MyEnum.SomeValue;
+        var input = GetSampleInput();
 
         // Your proposed API usage here
-        var result = text.YourNewMethod();
-        var transformed = number.YourNewExtension();
-        var processed = myEnum.YourNewOperation();
+        var result = input.YourNewMethod();
 
         // Expected behavior
         Console.WriteLine($"Result: {result}");
