@@ -13,160 +13,16 @@ public class TaskExtensionsTests
         tcs.Task.IsCompleted.Should().BeFalse();
     }
 
-    [Fact]
-    public async Task WithTimeoutInMs_GenericThrowsOnTimeout()
-    {
-        var tcs = new TaskCompletionSource<int>();
-        Func<Task> action = () => tcs.Task.WithTimeoutInMs(5);
-        await action.Should().ThrowAsync<TimeoutException>();
-    }
+    #region WaitAsync<T> tests
 
     [Fact]
-    public async Task WithTimeoutInMs_ThrowsWhenTimeoutNegative()
-    {
-        var task = Task.CompletedTask;
-        Func<Task> action = () => task.WithTimeoutInMs(-1);
-        await action.Should().ThrowAsync<ArgumentException>()
-            .WithMessage("*Timeout must be zero or positive*");
-    }
-
-    [Fact]
-    public async Task WithTimeoutInMs_GenericThrowsWhenTimeoutNegative()
-    {
-        var task = Task.FromResult(42);
-        Func<Task> action = () => task.WithTimeoutInMs(-1);
-        var exception = await action.Should().ThrowAsync<ArgumentException>();
-        exception.WithMessage("*Timeout must be zero or positive*")
-            .And.ParamName.Should().Be("timeout");
-    }
-
-    [Fact]
-    public async Task WithTimeoutInMs_NonGenericWorks()
-    {
-        var task = Task.Delay(1);
-        await task.WithTimeoutInMs(1000);
-    }
-
-    [Fact]
-    public async Task WithTimeoutInMs_NonGenericThrowsOnTimeout()
-    {
-        var tcs = new TaskCompletionSource();
-        Func<Task> action = () => tcs.Task.WithTimeoutInMs(5);
-        await action.Should().ThrowAsync<TimeoutException>();
-    }
-
-    [Fact]
-    public async Task WithTimeoutInMs_GenericCompletesSuccessfully()
+    public async Task WaitAsync_Generic_NullTimeout_ReturnsSameTask()
     {
         // Arrange
         var task = Task.FromResult(42);
 
         // Act
-        var result = await task.WithTimeoutInMs(1000);
-
-        // Assert
-        result.Should().Be(42);
-    }
-
-    [Fact]
-    public async Task WithTimeoutInMs_GenericZeroTimeout_CompletesImmediately()
-    {
-        // Arrange
-        var task = Task.FromResult(42);
-
-        // Act
-        var result = await task.WithTimeoutInMs(0);
-
-        // Assert
-        result.Should().Be(42);
-    }
-
-    [Fact]
-    public async Task WithTimeoutInMs_NonGenericZeroTimeout_CompletesImmediately()
-    {
-        // Arrange
-        var task = Task.CompletedTask;
-
-        // Act & Assert
-        await task.WithTimeoutInMs(0); // Should not throw
-    }
-
-    [Fact]
-    public async Task WithTimeoutInMs_CapsVeryLargeTimeout()
-    {
-        // Arrange
-        var task = Task.FromResult(42);
-        const long veryLargeTimeout = 5000000000L; // Larger than max allowed
-
-        // Act & Assert - should not throw ArgumentOutOfRangeException
-        var result = await task.WithTimeoutInMs(veryLargeTimeout);
-        result.Should().Be(42);
-    }
-
-    [Fact]
-    public void WithTimeoutInMs_NullTask_ThrowsArgumentNullException()
-    {
-        // Arrange
-        Task? nullTask = null;
-
-        // Act & Assert
-        Action act = () => nullTask!.WithTimeoutInMs(1000);
-        act.Should().Throw<ArgumentNullException>();
-    }
-
-    [Fact]
-    public void WithTimeoutInMs_GenericNullTask_ThrowsArgumentNullException()
-    {
-        // Arrange
-        Task<int>? nullTask = null;
-
-        // Act & Assert
-        Action act = () => nullTask!.WithTimeoutInMs(1000);
-        act.Should().Throw<ArgumentNullException>();
-    }
-
-    [Fact]
-    public async Task WithOptionalTimeoutInMs_GenericReturnsSameTaskWhenDisabled()
-    {
-        var task = Task.FromResult(42);
-        var result = task.WithOptionalTimeoutInMs(0);
-        result.Should().BeSameAs(task);
-        (await result).Should().Be(42);
-    }
-
-    [Fact]
-    public async Task WithOptionalTimeoutInMs_GenericTimesOut()
-    {
-        var tcs = new TaskCompletionSource<int>();
-        Func<Task> action = () => tcs.Task.WithOptionalTimeoutInMs(5);
-        await action.Should().ThrowAsync<TimeoutException>();
-    }
-
-    [Fact]
-    public async Task WithOptionalTimeoutInMs_NonGenericReturnsSameTaskWhenDisabled()
-    {
-        var task = Task.CompletedTask;
-        var result = task.WithOptionalTimeoutInMs(0);
-        result.Should().BeSameAs(task);
-        await result;
-    }
-
-    [Fact]
-    public async Task WithOptionalTimeoutInMs_NonGenericTimesOut()
-    {
-        var tcs = new TaskCompletionSource();
-        Func<Task> action = () => tcs.Task.WithOptionalTimeoutInMs(5);
-        await action.Should().ThrowAsync<TimeoutException>();
-    }
-
-    [Fact]
-    public async Task WithOptionalTimeoutInMs_GenericNegativeTimeout_ReturnsSameTask()
-    {
-        // Arrange
-        var task = Task.FromResult(42);
-
-        // Act
-        var result = task.WithOptionalTimeoutInMs(-100);
+        var result = task.WaitBetterAsync(null);
 
         // Assert
         result.Should().BeSameAs(task);
@@ -174,13 +30,85 @@ public class TaskExtensionsTests
     }
 
     [Fact]
-    public async Task WithOptionalTimeoutInMs_NonGenericNegativeTimeout_ReturnsSameTask()
+    public async Task WaitAsync_Generic_ZeroTimeout_ReturnsSameTask()
+    {
+        // Arrange
+        var task = Task.FromResult(42);
+
+        // Act
+        var result = task.WaitBetterAsync(TimeSpan.Zero);
+
+        // Assert
+        result.Should().BeSameAs(task);
+        (await result).Should().Be(42);
+    }
+
+    [Fact]
+    public async Task WaitAsync_Generic_NegativeTimeout_ReturnsSameTask()
+    {
+        // Arrange
+        var task = Task.FromResult(42);
+
+        // Act
+        var result = task.WaitBetterAsync(TimeSpan.FromMilliseconds(-1));
+
+        // Assert
+        result.Should().BeSameAs(task);
+        (await result).Should().Be(42);
+    }
+
+    [Fact]
+    public async Task WaitAsync_Generic_ValidTimeout_CompletesSuccessfully()
+    {
+        // Arrange
+        var task = Task.FromResult(42);
+
+        // Act
+        var result = await task.WaitBetterAsync(TimeSpan.FromSeconds(1));
+
+        // Assert
+        result.Should().Be(42);
+    }
+
+    [Fact]
+    public async Task WaitAsync_Generic_ValidTimeout_ThrowsTimeoutException()
+    {
+        // Arrange
+        var tcs = new TaskCompletionSource<int>();
+
+        // Act & Assert
+        Func<Task> act = () => tcs.Task.WaitBetterAsync(TimeSpan.FromMilliseconds(50));
+        await act.Should().ThrowAsync<TimeoutException>();
+    }
+
+    [Fact]
+    public async Task WaitAsync_Generic_WithCancellationToken_RespectsToken()
+    {
+        // Arrange
+        var tcs = new TaskCompletionSource<int>();
+        var cts = new CancellationTokenSource();
+
+        // Act
+        var waitTask = tcs.Task.WaitBetterAsync(TimeSpan.FromSeconds(10), cts.Token);
+        cts.Cancel();
+
+        // Assert
+        Func<Task> act = () => waitTask;
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    #endregion
+
+    #region WaitAsync (non-generic) tests
+
+    [Fact]
+    public async Task WaitAsync_NonGeneric_NullTimeout_ReturnsSameTask()
     {
         // Arrange
         var task = Task.CompletedTask;
 
         // Act
-        var result = task.WithOptionalTimeoutInMs(-100);
+        var result = task.WaitBetterAsync(null);
 
         // Assert
         result.Should().BeSameAs(task);
@@ -188,56 +116,110 @@ public class TaskExtensionsTests
     }
 
     [Fact]
-    public void WithOptionalTimeoutInMs_GenericNullTask_ThrowsArgumentNullException()
+    public async Task WaitAsync_NonGeneric_ZeroTimeout_ReturnsSameTask()
     {
         // Arrange
-        Task<int>? nullTask = null;
+        var task = Task.CompletedTask;
 
-        // Act & Assert
-        Action act = () => nullTask!.WithOptionalTimeoutInMs(1000);
-        act.Should().Throw<ArgumentNullException>();
+        // Act
+        var result = task.WaitBetterAsync(TimeSpan.Zero);
+
+        // Assert
+        result.Should().BeSameAs(task);
+        await result; // Should complete successfully
     }
 
     [Fact]
-    public void WithOptionalTimeoutInMs_NonGenericNullTask_ThrowsArgumentNullException()
+    public async Task WaitAsync_NonGeneric_NegativeTimeout_ReturnsSameTask()
     {
         // Arrange
-        Task? nullTask = null;
+        var task = Task.CompletedTask;
 
-        // Act & Assert
-        Action act = () => nullTask!.WithOptionalTimeoutInMs(1000);
-        act.Should().Throw<ArgumentNullException>();
+        // Act
+        var result = task.WaitBetterAsync(TimeSpan.FromMilliseconds(-1));
+
+        // Assert
+        result.Should().BeSameAs(task);
+        await result; // Should complete successfully
     }
 
     [Fact]
-    public async Task WithTimeoutInMs_WithCancellationToken_RespectsToken()
+    public async Task WaitAsync_NonGeneric_ValidTimeout_CompletesSuccessfully()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<int>();
+        var task = Task.Delay(10); // Short delay
+
+        // Act & Assert
+        await task.WaitBetterAsync(TimeSpan.FromSeconds(1)); // Should not throw
+    }
+
+    [Fact]
+    public async Task WaitAsync_NonGeneric_ValidTimeout_ThrowsTimeoutException()
+    {
+        // Arrange
+        var tcs = new TaskCompletionSource();
+
+        // Act & Assert
+        Func<Task> act = () => tcs.Task.WaitBetterAsync(TimeSpan.FromMilliseconds(50));
+        await act.Should().ThrowAsync<TimeoutException>();
+    }
+
+    [Fact]
+    public async Task WaitAsync_NonGeneric_WithCancellationToken_RespectsToken()
+    {
+        // Arrange
+        var tcs = new TaskCompletionSource();
         var cts = new CancellationTokenSource();
 
         // Act
-        var timeoutTask = tcs.Task.WithTimeoutInMs(10000, cts.Token);
+        var waitTask = tcs.Task.WaitBetterAsync(TimeSpan.FromSeconds(10), cts.Token);
         cts.Cancel();
 
         // Assert
-        Func<Task> act = () => timeoutTask;
+        Func<Task> act = () => waitTask;
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    #endregion
+
+    #region Integration and edge case tests
+
+    [Fact]
+    public async Task WaitAsync_LargeTimeout_DoesNotThrow()
+    {
+        // Arrange
+        var task = Task.FromResult(42);
+        var largeTimeout = TimeSpan.FromDays(365); // Very large timeout
+
+        // Act & Assert - should not throw, even with very large timeouts
+        var result = await task.WaitBetterAsync(largeTimeout);
+        result.Should().Be(42);
+    }
+
+    [Fact]
+    public async Task WaitAsync_CancelledTask_PropagatesCancellation()
+    {
+        // Arrange
+        var cts = new CancellationTokenSource();
+        cts.Cancel();
+        var cancelledTask = Task.FromCanceled<int>(cts.Token);
+
+        // Act & Assert
+        Func<Task> act = () => cancelledTask.WaitBetterAsync(TimeSpan.FromSeconds(1));
         await act.Should().ThrowAsync<OperationCanceledException>();
     }
 
     [Fact]
-    public async Task WithOptionalTimeoutInMs_WithCancellationToken_RespectsToken()
+    public async Task WaitAsync_FaultedTask_PropagatesException()
     {
         // Arrange
-        var tcs = new TaskCompletionSource<int>();
-        var cts = new CancellationTokenSource();
+        var exception = new InvalidOperationException("Test exception");
+        var faultedTask = Task.FromException<int>(exception);
 
-        // Act
-        var timeoutTask = tcs.Task.WithOptionalTimeoutInMs(10000, cts.Token);
-        cts.Cancel();
-
-        // Assert
-        Func<Task> act = () => timeoutTask;
-        await act.Should().ThrowAsync<OperationCanceledException>();
+        // Act & Assert
+        Func<Task> act = () => faultedTask.WaitBetterAsync(TimeSpan.FromSeconds(1));
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("Test exception");
     }
+
+    #endregion
 }
