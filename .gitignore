@@ -476,3 +476,5 @@ riderModule.iml
 Plugin.BaseTypeExtensions.Docs/site/
 
 Plugin.BaseTypeExtensions.Docs/api/
+
+output/
