@@ -407,4 +407,194 @@ public class TaskExtensionsTests
     }
 
     #endregion
+
+    #region StartAndForget with TaskCompletionSource tests
+
+    [Fact]
+    public async Task StartAndForget_WithTCS_SuccessfulTask_CompletesTaskCompletionSource()
+    {
+        // Arrange
+        var taskCompleted = false;
+        var task = Task.Run(async () =>
+        {
+            await Task.Delay(10);
+            taskCompleted = true;
+        });
+        var tcs = new TaskCompletionSource();
+
+        // Act
+        task.StartAndForget(tcs);
+
+        // Wait for the task to complete
+        await tcs.Task;
+
+        // Assert
+        taskCompleted.Should().BeTrue();
+        tcs.Task.IsCompletedSuccessfully.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task StartAndForget_WithTCS_TaskThatThrows_SetsException()
+    {
+        // Arrange
+        var expectedException = new InvalidOperationException("Test exception");
+        var task = Task.Run(async () =>
+        {
+            await Task.Delay(10);
+            throw expectedException;
+        });
+        var tcs = new TaskCompletionSource();
+
+        // Act
+        task.StartAndForget(tcs);
+
+        // Wait for the task to complete
+        await Task.Delay(100);
+
+        // Assert
+        tcs.Task.IsFaulted.Should().BeTrue();
+        var thrownException = await tcs.Task.ContinueWith(t => t.Exception?.InnerException);
+        thrownException.Should().BeOfType<InvalidOperationException>();
+        thrownException!.Message.Should().Be("Test exception");
+    }
+
+    [Fact]
+    public async Task StartAndForget_WithTCS_ExceptionPropagatedCorrectly()
+    {
+        // Arrange
+        var testMessage = "Specific error message";
+        Func<int> throwingFunc = () => throw new ArgumentException(testMessage);
+        var task = Task.Run(throwingFunc);
+        var tcs = new TaskCompletionSource();
+
+        // Act
+        task.StartAndForget(tcs);
+
+        // Wait for exception to be set
+        await Task.Delay(100);
+
+        // Assert
+        tcs.Task.IsFaulted.Should().BeTrue();
+        tcs.Task.Exception.Should().NotBeNull();
+        tcs.Task.Exception!.InnerException.Should().BeOfType<ArgumentException>();
+        tcs.Task.Exception.InnerException!.Message.Should().Contain(testMessage);
+    }
+
+    [Fact]
+    public async Task StartAndForget_WithTCS_MultipleOperations_EachCompletesIndependently()
+    {
+        // Arrange
+        var tcs1 = new TaskCompletionSource();
+        var tcs2 = new TaskCompletionSource();
+        var tcs3 = new TaskCompletionSource();
+        
+        var task1 = Task.Run(async () => { await Task.Delay(10); });
+        var task2 = Task.Run(() => throw new InvalidOperationException("Error 2"));
+        var task3 = Task.Run(async () => { await Task.Delay(20); });
+
+        // Act
+        task1.StartAndForget(tcs1);
+        task2.StartAndForget(tcs2);
+        task3.StartAndForget(tcs3);
+
+        // Wait for all to complete
+        await Task.Delay(200);
+
+        // Assert
+        tcs1.Task.IsCompletedSuccessfully.Should().BeTrue();
+        tcs2.Task.IsFaulted.Should().BeTrue();
+        tcs3.Task.IsCompletedSuccessfully.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task StartAndForget_WithTCS_CompletedTask_SignalsImmediately()
+    {
+        // Arrange
+        var task = Task.CompletedTask;
+        var tcs = new TaskCompletionSource();
+
+        // Act
+        task.StartAndForget(tcs);
+
+        // Wait a short time
+        await Task.Delay(50);
+
+        // Assert
+        tcs.Task.IsCompletedSuccessfully.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task StartAndForget_WithTCS_CancelledTask_SetsException()
+    {
+        // Arrange
+        var cts = new CancellationTokenSource();
+        cts.Cancel();
+        var task = Task.Run(() => 
+        {
+            cts.Token.ThrowIfCancellationRequested();
+        }, cts.Token);
+        var tcs = new TaskCompletionSource();
+
+        // Act
+        task.StartAndForget(tcs);
+
+        // Wait for exception to be set
+        await Task.Delay(100);
+
+        // Assert
+        tcs.Task.IsFaulted.Should().BeTrue();
+        tcs.Task.Exception.Should().NotBeNull();
+        tcs.Task.Exception!.InnerException.Should().BeAssignableTo<OperationCanceledException>();
+    }
+
+    [Fact]
+    public async Task StartAndForget_WithTCS_DoesNotBlockCaller()
+    {
+        // Arrange
+        var taskStarted = false;
+        var task = Task.Run(async () =>
+        {
+            taskStarted = true;
+            await Task.Delay(1000); // Long running
+        });
+        var tcs = new TaskCompletionSource();
+
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+        // Act
+        task.StartAndForget(tcs);
+
+        stopwatch.Stop();
+
+        // Assert - method should return immediately
+        stopwatch.ElapsedMilliseconds.Should().BeLessThan(100);
+        
+        // Wait a bit and verify task actually started
+        await Task.Delay(50);
+        taskStarted.Should().BeTrue();
+        tcs.Task.IsCompleted.Should().BeFalse("task is still running");
+    }
+
+    [Fact]
+    public async Task StartAndForget_WithTCS_CanAwaitCompletion()
+    {
+        // Arrange
+        var completed = false;
+        var task = Task.Run(async () =>
+        {
+            await Task.Delay(50);
+            completed = true;
+        });
+        var tcs = new TaskCompletionSource();
+
+        // Act
+        task.StartAndForget(tcs);
+        await tcs.Task; // Wait for completion
+
+        // Assert
+        completed.Should().BeTrue();
+        tcs.Task.IsCompletedSuccessfully.Should().BeTrue();
+    }
+
+    #endregion
 }
