@@ -155,7 +155,7 @@ public static class TaskExtensions
     /// <param name="task">The task to execute. Must not be null.</param>
     /// <param name="completionSource">
     /// A <see cref="TaskCompletionSource"/> that will be completed when the task finishes.
-    /// If the task completes successfully, <see cref="TaskCompletionSource.TrySetResult()"/> is called.
+    /// If the task completes successfully, <see cref="TaskCompletionSource.TrySetResult"/> is called.
     /// If the task throws an exception, <see cref="TaskCompletionSource.TrySetException(Exception)"/> is called with that exception.
     /// Must not be null.
     /// </param>
