@@ -312,7 +312,7 @@ public class TaskExtensionsTests
     public async Task StartAndForget_MultipleExceptions_EachIsHandledSeparately()
     {
         // Arrange
-        var exceptions = new List<Exception>();
+        var exceptions = new System.Collections.Concurrent.ConcurrentBag<Exception>();
         var tcs1 = new TaskCompletionSource();
         var tcs2 = new TaskCompletionSource();
         var tcs3 = new TaskCompletionSource();
