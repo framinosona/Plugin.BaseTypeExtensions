@@ -339,7 +339,7 @@ public class TaskExtensionsTests
     {
         // Arrange
         Exception? capturedEx = null;
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
         cts.Cancel();
         var handlerInvoked = new TaskCompletionSource();
         var task = Task.Run(() => 
