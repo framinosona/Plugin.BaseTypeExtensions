@@ -477,7 +477,7 @@ public class TaskExtensionsTests
         task.StartAndForget(tcs);
 
         // Wait for exception to be set
-        await Task.Delay(100);
+        await tcs.Task;
 
         // Assert
         tcs.Task.IsFaulted.Should().BeTrue();
