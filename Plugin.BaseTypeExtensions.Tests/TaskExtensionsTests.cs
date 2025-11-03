@@ -533,12 +533,15 @@ public class TaskExtensionsTests
     public async Task StartAndForget_WithTCS_CancelledTask_SetsException()
     {
         // Arrange
-        var cts = new CancellationTokenSource();
-        cts.Cancel();
-        var task = Task.Run(() => 
+        Task task;
+        using (var cts = new CancellationTokenSource())
         {
-            cts.Token.ThrowIfCancellationRequested();
-        }, cts.Token);
+            cts.Cancel();
+            task = Task.Run(() =>
+            {
+                cts.Token.ThrowIfCancellationRequested();
+            }, cts.Token);
+        }
         var tcs = new TaskCompletionSource();
 
         // Act
