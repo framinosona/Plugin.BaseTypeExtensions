@@ -369,17 +369,19 @@ public class TaskExtensionsTests
         // Arrange
         var task = Task.Run(() => throw new InvalidOperationException("Original exception"));
         var handlerExecuted = false;
+        var handlerExecutedTcs = new TaskCompletionSource();
 
         // Act - exception in handler should not crash the test
         task.StartAndForget(ex =>
         {
             handlerExecuted = true;
+            handlerExecutedTcs.SetResult();
             // This exception should be handled by the async void context
             throw new Exception("Exception in handler");
         });
 
-        // Wait for handler to execute
-        await Task.Delay(100);
+        // Wait for handler to execute deterministically
+        await Task.WhenAny(handlerExecutedTcs.Task, Task.Delay(1000));
 
         // Assert - we can only verify the handler was called
         // The exception in the handler goes to the sync context but doesn't crash the test
