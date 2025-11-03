@@ -341,16 +341,22 @@ public class TaskExtensionsTests
         Exception? capturedEx = null;
         var cts = new CancellationTokenSource();
         cts.Cancel();
+        var handlerInvoked = new TaskCompletionSource();
         var task = Task.Run(() => 
         {
             cts.Token.ThrowIfCancellationRequested();
         }, cts.Token);
 
         // Act
-        task.StartAndForget(ex => capturedEx = ex);
+        task.StartAndForget(ex =>
+        {
+            capturedEx = ex;
+            handlerInvoked.SetResult();
+        });
 
-        // Wait for exception handler to be invoked
-        await Task.Delay(100);
+        // Wait for exception handler to be invoked (with timeout)
+        var completed = await Task.WhenAny(handlerInvoked.Task, Task.Delay(1000));
+        completed.Should().Be(handlerInvoked.Task, "Exception handler should be invoked within timeout");
 
         // Assert
         capturedEx.Should().NotBeNull();
