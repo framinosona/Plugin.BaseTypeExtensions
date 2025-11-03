@@ -82,4 +82,25 @@ public static class TaskExtensions
 
         return task.WaitAsync(actualTimeout, cancellationToken);
     }
+
+#pragma warning disable CA1031 // Do not catch general exception types
+    /// <summary>
+    /// Executes the task in a fire-and-forget manner, safely handling exceptions and optionally invoking a handler.
+    /// </summary>
+    /// <param name="task">The task to execute.</param>
+    /// <param name="onException">The action to invoke if an exception occurs.</param>
+    public async static void RunAndHandleExceptionAsync(this Task task, Action<Exception> onException)
+    {
+        ArgumentNullException.ThrowIfNull(task);
+        ArgumentNullException.ThrowIfNull(onException);
+        try
+        {
+            await task.ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            onException.Invoke(ex);
+        }
+    }
+#pragma warning restore CA1031 // Do not catch general exception types
 }
