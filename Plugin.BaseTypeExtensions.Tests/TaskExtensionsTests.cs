@@ -254,6 +254,7 @@ public class TaskExtensionsTests
         // Arrange
         var expectedException = new InvalidOperationException("Test exception");
         Exception? capturedEx = null;
+        var handlerInvoked = new TaskCompletionSource();
         var task = Task.Run(async () =>
         {
             await Task.Delay(10);
@@ -261,10 +262,15 @@ public class TaskExtensionsTests
         });
 
         // Act
-        task.StartAndForget(ex => capturedEx = ex);
+        task.StartAndForget(ex =>
+        {
+            capturedEx = ex;
+            handlerInvoked.SetResult();
+        });
 
-        // Wait for the task to complete and exception handler to be called
-        await Task.Delay(100);
+        // Wait for the exception handler to be invoked (with timeout)
+        var completed = await Task.WhenAny(handlerInvoked.Task, Task.Delay(1000));
+        completed.Should().Be(handlerInvoked.Task, "Exception handler should be invoked within timeout");
 
         // Assert
         capturedEx.Should().NotBeNull();
@@ -278,14 +284,20 @@ public class TaskExtensionsTests
         // Arrange
         var testMessage = "Specific error message";
         Exception? receivedException = null;
+        var handlerInvoked = new TaskCompletionSource();
         Func<int> throwingFunc = () => throw new ArgumentException(testMessage);
         var task = Task.Run(throwingFunc);
 
         // Act
-        task.StartAndForget(ex => receivedException = ex);
+        task.StartAndForget(ex =>
+        {
+            receivedException = ex;
+            handlerInvoked.SetResult();
+        });
 
-        // Wait for exception handler to be invoked
-        await Task.Delay(100);
+        // Wait for the exception handler to be invoked (with timeout)
+        var completed = await Task.WhenAny(handlerInvoked.Task, Task.Delay(1000));
+        completed.Should().Be(handlerInvoked.Task, "Exception handler should be invoked within timeout");
 
         // Assert
         receivedException.Should().NotBeNull();
@@ -298,17 +310,22 @@ public class TaskExtensionsTests
     {
         // Arrange
         var exceptions = new List<Exception>();
+        var tcs1 = new TaskCompletionSource();
+        var tcs2 = new TaskCompletionSource();
+        var tcs3 = new TaskCompletionSource();
         var task1 = Task.Run(() => throw new InvalidOperationException("Error 1"));
         var task2 = Task.Run(() => throw new ArgumentException("Error 2"));
         var task3 = Task.Run(() => throw new NotSupportedException("Error 3"));
 
         // Act
-        task1.StartAndForget(ex => exceptions.Add(ex));
-        task2.StartAndForget(ex => exceptions.Add(ex));
-        task3.StartAndForget(ex => exceptions.Add(ex));
+        task1.StartAndForget(ex => { exceptions.Add(ex); tcs1.SetResult(); });
+        task2.StartAndForget(ex => { exceptions.Add(ex); tcs2.SetResult(); });
+        task3.StartAndForget(ex => { exceptions.Add(ex); tcs3.SetResult(); });
 
-        // Wait for all handlers to be invoked - increase wait time for reliability
-        await Task.Delay(500);
+        // Wait for all handlers to be invoked (with timeout)
+        var allCompleted = Task.WhenAll(tcs1.Task, tcs2.Task, tcs3.Task);
+        var completed = await Task.WhenAny(allCompleted, Task.Delay(1000));
+        completed.Should().Be(allCompleted, "All exception handlers should be invoked within timeout");
 
         // Assert
         exceptions.Should().HaveCount(3);
@@ -456,8 +473,15 @@ public class TaskExtensionsTests
         // Act
         task.StartAndForget(tcs);
 
-        // Wait for the task to complete
-        await Task.Delay(100);
+        // Wait for the task to complete by awaiting tcs.Task with exception handling
+        try
+        {
+            await tcs.Task;
+        }
+        catch
+        {
+            // Exception is expected, assertions below will verify
+        }
 
         // Assert
         tcs.Task.IsFaulted.Should().BeTrue();
@@ -478,8 +502,15 @@ public class TaskExtensionsTests
         // Act
         task.StartAndForget(tcs);
 
-        // Wait for exception to be set
-        await tcs.Task;
+        // Wait for exception to be set by awaiting tcs.Task with exception handling
+        try
+        {
+            await tcs.Task;
+        }
+        catch
+        {
+            // Exception is expected, assertions below will verify
+        }
 
         // Assert
         tcs.Task.IsFaulted.Should().BeTrue();
