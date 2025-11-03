@@ -85,11 +85,54 @@ public static class TaskExtensions
 
 #pragma warning disable CA1031 // Do not catch general exception types
     /// <summary>
-    /// Executes the task in a fire-and-forget manner, safely handling exceptions and optionally invoking a handler.
+    /// Executes the task asynchronously in a fire-and-forget manner without waiting for its completion.
+    /// This method is intended for scenarios where you want to start a background operation without blocking
+    /// the caller, and you need to handle any exceptions that may occur during execution.
     /// </summary>
-    /// <param name="task">The task to execute.</param>
-    /// <param name="onException">The action to invoke if an exception occurs.</param>
-    public async static void RunAndHandleExceptionAsync(this Task task, Action<Exception> onException)
+    /// <param name="task">The task to execute. Must not be null.</param>
+    /// <param name="onException">
+    /// An action that will be invoked if the task throws an exception. The exception will be passed
+    /// as a parameter to this action. This handler is called on the thread pool context (due to ConfigureAwait(false)).
+    /// Must not be null.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="task"/> or <paramref name="onException"/> is null.
+    /// </exception>
+    /// <remarks>
+    /// <para>
+    /// This method is useful for starting background operations where you don't need to await the result,
+    /// but you want to ensure that exceptions are handled gracefully rather than being silently swallowed
+    /// or causing unobserved task exceptions.
+    /// </para>
+    /// <para>
+    /// The method returns immediately after starting the task execution. The task runs on the thread pool
+    /// context (ConfigureAwait(false) is used), ensuring it doesn't capture the synchronization context.
+    /// </para>
+    /// <para>
+    /// Common use cases include:
+    /// <list type="bullet">
+    /// <item><description>Logging operations that shouldn't block the main flow</description></item>
+    /// <item><description>Fire-and-forget notifications or telemetry</description></item>
+    /// <item><description>Background cleanup or maintenance tasks</description></item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// Warning: Because this is an async void method, exceptions thrown before the first await
+    /// cannot be caught by the caller. Always ensure that the task parameter is valid before calling this method.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Example: Start a background logging operation
+    /// LogAsync(message).StartAndForget(ex => 
+    ///     Console.WriteLine($"Logging failed: {ex.Message}"));
+    ///     
+    /// // Example: Send telemetry without blocking
+    /// SendTelemetryAsync(data).StartAndForget(ex => 
+    ///     _logger.LogError(ex, "Telemetry failed"));
+    /// </code>
+    /// </example>
+    public async static void StartAndForget(this Task task, Action<Exception> onException)
     {
         ArgumentNullException.ThrowIfNull(task);
         ArgumentNullException.ThrowIfNull(onException);

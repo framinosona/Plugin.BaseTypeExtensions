@@ -222,4 +222,189 @@ public class TaskExtensionsTests
     }
 
     #endregion
+
+    #region StartAndForget tests
+
+    [Fact]
+    public async Task StartAndForget_SuccessfulTask_CompletesWithoutException()
+    {
+        // Arrange
+        var taskCompleted = false;
+        var exceptionHandled = false;
+        var task = Task.Run(async () =>
+        {
+            await Task.Delay(10);
+            taskCompleted = true;
+        });
+
+        // Act
+        task.StartAndForget(ex => exceptionHandled = true);
+
+        // Wait for the task to complete
+        await Task.Delay(100);
+
+        // Assert
+        taskCompleted.Should().BeTrue();
+        exceptionHandled.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task StartAndForget_TaskThatThrows_InvokesExceptionHandler()
+    {
+        // Arrange
+        var expectedException = new InvalidOperationException("Test exception");
+        Exception? capturedEx = null;
+        var task = Task.Run(async () =>
+        {
+            await Task.Delay(10);
+            throw expectedException;
+        });
+
+        // Act
+        task.StartAndForget(ex => capturedEx = ex);
+
+        // Wait for the task to complete and exception handler to be called
+        await Task.Delay(100);
+
+        // Assert
+        capturedEx.Should().NotBeNull();
+        capturedEx.Should().BeOfType<InvalidOperationException>();
+        capturedEx!.Message.Should().Be("Test exception");
+    }
+
+    [Fact]
+    public async Task StartAndForget_ExceptionHandlerReceivesCorrectException()
+    {
+        // Arrange
+        var testMessage = "Specific error message";
+        Exception? receivedException = null;
+        Func<int> throwingFunc = () => throw new ArgumentException(testMessage);
+        var task = Task.Run(throwingFunc);
+
+        // Act
+        task.StartAndForget(ex => receivedException = ex);
+
+        // Wait for exception handler to be invoked
+        await Task.Delay(100);
+
+        // Assert
+        receivedException.Should().NotBeNull();
+        receivedException.Should().BeOfType<ArgumentException>();
+        receivedException!.Message.Should().Contain(testMessage);
+    }
+
+    [Fact]
+    public async Task StartAndForget_MultipleExceptions_EachIsHandledSeparately()
+    {
+        // Arrange
+        var exceptions = new List<Exception>();
+        var task1 = Task.Run(() => throw new InvalidOperationException("Error 1"));
+        var task2 = Task.Run(() => throw new ArgumentException("Error 2"));
+        var task3 = Task.Run(() => throw new NotSupportedException("Error 3"));
+
+        // Act
+        task1.StartAndForget(ex => exceptions.Add(ex));
+        task2.StartAndForget(ex => exceptions.Add(ex));
+        task3.StartAndForget(ex => exceptions.Add(ex));
+
+        // Wait for all handlers to be invoked - increase wait time for reliability
+        await Task.Delay(500);
+
+        // Assert
+        exceptions.Should().HaveCount(3);
+        exceptions.Should().Contain(ex => ex is InvalidOperationException && ex.Message == "Error 1");
+        exceptions.Should().Contain(ex => ex is ArgumentException && ex.Message.Contains("Error 2"));
+        exceptions.Should().Contain(ex => ex is NotSupportedException && ex.Message == "Error 3");
+    }
+
+    [Fact]
+    public async Task StartAndForget_CompletedTask_HandlerNotInvoked()
+    {
+        // Arrange
+        var handlerInvoked = false;
+        var task = Task.CompletedTask;
+
+        // Act
+        task.StartAndForget(ex => handlerInvoked = true);
+
+        // Wait to ensure handler would have been called if there was an exception
+        await Task.Delay(50);
+
+        // Assert
+        handlerInvoked.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task StartAndForget_CancelledTask_InvokesExceptionHandler()
+    {
+        // Arrange
+        Exception? capturedEx = null;
+        var cts = new CancellationTokenSource();
+        cts.Cancel();
+        var task = Task.Run(() => 
+        {
+            cts.Token.ThrowIfCancellationRequested();
+        }, cts.Token);
+
+        // Act
+        task.StartAndForget(ex => capturedEx = ex);
+
+        // Wait for exception handler to be invoked
+        await Task.Delay(100);
+
+        // Assert
+        capturedEx.Should().NotBeNull();
+        capturedEx.Should().BeAssignableTo<OperationCanceledException>("TaskCanceledException derives from OperationCanceledException");
+    }
+
+    [Fact]
+    public async Task StartAndForget_ExceptionInHandler_DoesNotPropagateToCallerContext()
+    {
+        // Arrange
+        var task = Task.Run(() => throw new InvalidOperationException("Original exception"));
+        var handlerExecuted = false;
+
+        // Act - exception in handler should not crash the test
+        task.StartAndForget(ex =>
+        {
+            handlerExecuted = true;
+            // This exception should be handled by the async void context
+            throw new Exception("Exception in handler");
+        });
+
+        // Wait for handler to execute
+        await Task.Delay(100);
+
+        // Assert - we can only verify the handler was called
+        // The exception in the handler goes to the sync context but doesn't crash the test
+        handlerExecuted.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task StartAndForget_LongRunningTask_DoesNotBlockCaller()
+    {
+        // Arrange
+        var taskStarted = false;
+        var task = Task.Run(async () =>
+        {
+            taskStarted = true;
+            await Task.Delay(1000); // Long running
+        });
+
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+        // Act
+        task.StartAndForget(ex => { });
+
+        stopwatch.Stop();
+
+        // Assert - method should return immediately
+        stopwatch.ElapsedMilliseconds.Should().BeLessThan(100);
+        
+        // Wait a bit and verify task actually started
+        await Task.Delay(50);
+        taskStarted.Should().BeTrue();
+    }
+
+    #endregion
 }
