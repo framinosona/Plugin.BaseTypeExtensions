@@ -231,17 +231,20 @@ public class TaskExtensionsTests
         // Arrange
         var taskCompleted = false;
         var exceptionHandled = false;
+        var taskCompletionSignal = new TaskCompletionSource();
         var task = Task.Run(async () =>
         {
             await Task.Delay(10);
             taskCompleted = true;
+            taskCompletionSignal.SetResult();
         });
 
         // Act
         task.StartAndForget(ex => exceptionHandled = true);
 
-        // Wait for the task to complete
-        await Task.Delay(100);
+        // Wait for the task to complete (with timeout)
+        var completed = await Task.WhenAny(taskCompletionSignal.Task, Task.Delay(1000));
+        completed.Should().Be(taskCompletionSignal.Task, "Task should complete within timeout");
 
         // Assert
         taskCompleted.Should().BeTrue();
