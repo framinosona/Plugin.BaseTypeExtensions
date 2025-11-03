@@ -85,11 +85,54 @@ public static class TaskExtensions
 
 #pragma warning disable CA1031 // Do not catch general exception types
     /// <summary>
-    /// Executes the task in a fire-and-forget manner, safely handling exceptions and optionally invoking a handler.
+    /// Executes the task asynchronously in a fire-and-forget manner without waiting for its completion.
+    /// This method is intended for scenarios where you want to start a background operation without blocking
+    /// the caller, and you need to handle any exceptions that may occur during execution.
     /// </summary>
-    /// <param name="task">The task to execute.</param>
-    /// <param name="onException">The action to invoke if an exception occurs.</param>
-    public async static void RunAndHandleExceptionAsync(this Task task, Action<Exception> onException)
+    /// <param name="task">The task to execute. Must not be null.</param>
+    /// <param name="onException">
+    /// An action that will be invoked if the task throws an exception. The exception will be passed
+    /// as a parameter to this action. This handler is called on the thread pool context (due to ConfigureAwait(false)).
+    /// Must not be null.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="task"/> or <paramref name="onException"/> is null.
+    /// </exception>
+    /// <remarks>
+    /// <para>
+    /// This method is useful for starting background operations where you don't need to await the result,
+    /// but you want to ensure that exceptions are handled gracefully rather than being silently swallowed
+    /// or causing unobserved task exceptions.
+    /// </para>
+    /// <para>
+    /// The method returns immediately after starting the task execution. The task runs on the thread pool
+    /// context (ConfigureAwait(false) is used), ensuring it doesn't capture the synchronization context.
+    /// </para>
+    /// <para>
+    /// Common use cases include:
+    /// <list type="bullet">
+    /// <item><description>Logging operations that shouldn't block the main flow</description></item>
+    /// <item><description>Fire-and-forget notifications or telemetry</description></item>
+    /// <item><description>Background cleanup or maintenance tasks</description></item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// Warning: Because this is an async void method, exceptions thrown before the first await
+    /// cannot be caught by the caller. Always ensure that the task parameter is valid before calling this method.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Example: Start a background logging operation
+    /// LogAsync(message).StartAndForget(ex => 
+    ///     Console.WriteLine($"Logging failed: {ex.Message}"));
+    ///     
+    /// // Example: Send telemetry without blocking
+    /// SendTelemetryAsync(data).StartAndForget(ex => 
+    ///     _logger.LogError(ex, "Telemetry failed"));
+    /// </code>
+    /// </example>
+    public async static void StartAndForget(this Task task, Action<Exception> onException)
     {
         ArgumentNullException.ThrowIfNull(task);
         ArgumentNullException.ThrowIfNull(onException);
@@ -100,6 +143,78 @@ public static class TaskExtensions
         catch (Exception ex)
         {
             onException.Invoke(ex);
+        }
+    }
+
+    /// <summary>
+    /// Executes the task asynchronously in a fire-and-forget manner without waiting for its completion,
+    /// and signals the completion or failure through a <see cref="TaskCompletionSource"/>.
+    /// This method is intended for scenarios where you want to start a background operation without blocking
+    /// the caller, and you need to track its completion status via a TaskCompletionSource.
+    /// </summary>
+    /// <param name="task">The task to execute. Must not be null.</param>
+    /// <param name="completionSource">
+    /// A <see cref="TaskCompletionSource"/> that will be completed when the task finishes.
+    /// If the task completes successfully, <see cref="TaskCompletionSource.TrySetResult"/> is called.
+    /// If the task throws an exception, <see cref="TaskCompletionSource.TrySetException(Exception)"/> is called with that exception.
+    /// Must not be null.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="task"/> or <paramref name="completionSource"/> is null.
+    /// </exception>
+    /// <remarks>
+    /// <para>
+    /// This method is useful for starting background operations where you don't need to await the result immediately,
+    /// but you want to track completion status through a TaskCompletionSource. This allows you to observe the
+    /// completion or failure of the background operation at a later time.
+    /// </para>
+    /// <para>
+    /// The method returns immediately after starting the task execution. The task runs on the thread pool
+    /// context (ConfigureAwait(false) is used), ensuring it doesn't capture the synchronization context.
+    /// </para>
+    /// <para>
+    /// Common use cases include:
+    /// <list type="bullet">
+    /// <item><description>Starting background operations that need to signal completion to waiting code</description></item>
+    /// <item><description>Fire-and-forget operations where you want to track success/failure externally</description></item>
+    /// <item><description>Coordinating multiple background tasks through their completion sources</description></item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// Warning: Because this is an async void method, exceptions thrown before the first await
+    /// cannot be caught by the caller. Always ensure that the task parameter is valid before calling this method.
+    /// </para>
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Example: Track completion of a background operation
+    /// var tcs = new TaskCompletionSource();
+    /// BackgroundWorkAsync().StartAndForget(tcs);
+    /// // Later, you can await tcs.Task to know when it completed
+    /// await tcs.Task;
+    ///     
+    /// // Example: Coordinate multiple background operations
+    /// var operations = new[] { Op1Async(), Op2Async(), Op3Async() };
+    /// var completionSources = operations.Select(_ => new TaskCompletionSource()).ToArray();
+    /// for (int i = 0; i &lt; operations.Length; i++)
+    /// {
+    ///     operations[i].StartAndForget(completionSources[i]);
+    /// }
+    /// await Task.WhenAll(completionSources.Select(tcs => tcs.Task));
+    /// </code>
+    /// </example>
+    public async static void StartAndForget(this Task task, TaskCompletionSource completionSource)
+    {
+        ArgumentNullException.ThrowIfNull(task);
+        ArgumentNullException.ThrowIfNull(completionSource);
+        try
+        {
+            await task.ConfigureAwait(false);
+            completionSource.TrySetResult();
+        }
+        catch (Exception ex)
+        {
+            completionSource.TrySetException(ex);
         }
     }
 #pragma warning restore CA1031 // Do not catch general exception types
