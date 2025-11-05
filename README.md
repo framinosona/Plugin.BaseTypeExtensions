@@ -2,17 +2,17 @@
 
 <div align="center">
 
-[![Icon](icon.png)](https://github.com/framinosona/Plugin.ByteArrays)
+[![Icon](icon.png)](https://github.com/laerdal/Plugin.ByteArrays)
 
 </div>
 
-[![CI](https://img.shields.io/github/actions/workflow/status/framinosona/Plugin.BaseTypeExtensions/ci.yml?logo=github)](https://github.com/framinosona/Plugin.BaseTypeExtensions/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/laerdal/Plugin.BaseTypeExtensions/ci.yml?logo=github)](https://github.com/laerdal/Plugin.BaseTypeExtensions/actions/workflows/ci.yml)
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![NuGet](https://img.shields.io/nuget/v/Plugin.BaseTypeExtensions?logo=nuget&color=004880)](https://www.nuget.org/packages/Plugin.BaseTypeExtensions)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/Plugin.BaseTypeExtensions?logo=nuget&color=004880)](https://www.nuget.org/packages/Plugin.BaseTypeExtensions)
-[![GitHub Release](https://img.shields.io/github/v/release/framinosona/Plugin.BaseTypeExtensions?logo=github)](https://github.com/framinosona/Plugin.BaseTypeExtensions/releases)
-[![License](https://img.shields.io/github/license/framinosona/Plugin.BaseTypeExtensions?color=blue)](LICENSE.md)
-[![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-blue?logo=github)](https://framinosona.github.io/Plugin.BaseTypeExtensions/)
+[![GitHub Release](https://img.shields.io/github/v/release/laerdal/Plugin.BaseTypeExtensions?logo=github)](https://github.com/laerdal/Plugin.BaseTypeExtensions/releases)
+[![License](https://img.shields.io/github/license/laerdal/Plugin.BaseTypeExtensions?color=blue)](LICENSE.md)
+[![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-blue?logo=github)](https://laerdal.github.io/Plugin.BaseTypeExtensions/)
 
 A comprehensive collection of extension methods for .NET base types, designed to enhance productivity, type safety, and code readability in modern .NET applications.
 
