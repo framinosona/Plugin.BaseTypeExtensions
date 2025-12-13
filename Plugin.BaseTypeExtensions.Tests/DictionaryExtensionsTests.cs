@@ -26,7 +26,7 @@ public class DictionaryExtensionsTests
         var output = new Dictionary<string, int> { ["a"] = 1, ["b"] = 2 };
         var input = new Dictionary<string, int> { ["a"] = 1, ["c"] = 3 };
 
-        output.UpdateFrom(input);
+        output.UpdateFrom(input: input);
 
         output.Should().ContainKeys("a", "c");
         output.Should().NotContainKey("b");
@@ -39,7 +39,7 @@ public class DictionaryExtensionsTests
         var output = new Dictionary<string, int> { ["a"] = 1 };
         var input = new Dictionary<string, int> { ["a"] = 2 };
 
-        output.UpdateFrom(input);
+        output.UpdateFrom(input: input);
 
         output["a"].Should().Be(2);
     }
@@ -109,5 +109,160 @@ public class DictionaryExtensionsTests
         added.Should().ContainSingle().Which.Should().Be(("3", "4"));
         updated.Should().ContainSingle().Which.Should().Be(("1", "2"));
         removed.Should().ContainSingle().Which.Should().Be("b");
+    }
+
+    [Fact]
+    public void UpdateFrom_WithAddedAndRemovedItems_AppliesChanges()
+    {
+        var dict = new Dictionary<string, int> { ["a"] = 1, ["b"] = 2 };
+
+        dict.UpdateFrom(
+            addedItems: new[] { new KeyValuePair<string, int>("c", 3) },
+            removedItems: new[] { new KeyValuePair<string, int>("a", 1) });
+
+        dict.Should().ContainKeys("b", "c");
+        dict.Should().NotContainKey("a");
+        dict["c"].Should().Be(3);
+    }
+
+    [Fact]
+    public void UpdateFrom_WithAddedAndRemovedItems_UsingDefaultActions()
+    {
+        var dict = new Dictionary<string, int> { ["a"] = 1 };
+
+        dict.UpdateFrom(
+            addedItems: new[] { new KeyValuePair<string, int>("b", 2) },
+            removedItems: new[] { new KeyValuePair<string, int>("a", 0) });
+
+        dict.Should().ContainKey("b");
+        dict.Should().NotContainKey("a");
+    }
+
+    [Fact]
+    public void UpdateFrom_WithNullAddedItems_OnlyRemoves()
+    {
+        var dict = new Dictionary<string, int> { ["a"] = 1, ["b"] = 2 };
+
+        dict.UpdateFrom(
+            addedItems: null,
+            removedItems: new[] { new KeyValuePair<string, int>("a", 1) });
+
+        dict.Should().ContainKey("b");
+        dict.Should().NotContainKey("a");
+    }
+
+    [Fact]
+    public void UpdateFrom_WithNullRemovedItems_OnlyAdds()
+    {
+        var dict = new Dictionary<string, int> { ["a"] = 1 };
+
+        dict.UpdateFrom(
+            addedItems: new[] { new KeyValuePair<string, int>("b", 2) },
+            removedItems: null);
+
+        dict.Should().ContainKeys("a", "b");
+    }
+
+    [Fact]
+    public void UpdateFrom_WithNonDictionary_RequiresExplicitActions()
+    {
+        var kvps = new List<KeyValuePair<string, int>>
+        {
+            new("a", 1)
+        };
+
+        var action = () => kvps.UpdateFrom(
+            addedItems: new[] { new KeyValuePair<string, int>("b", 2) },
+            removedItems: null,
+            addAction: null,
+            removeAction: null);
+
+        action.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public async Task UpdateFromAsync_WithAddedAndRemovedItems_AppliesChanges()
+    {
+        var dict = new Dictionary<string, int> { ["a"] = 1, ["b"] = 2 };
+        var added = new List<(string, int)>();
+        var removed = new List<string>();
+
+        await dict.UpdateFromAsync(
+            addedItems: new[] { new KeyValuePair<string, int>("c", 3) },
+            removedItems: new[] { new KeyValuePair<string, int>("a", 1) },
+            addAction: async (k, v, ct) => { await Task.Yield(); added.Add((k, v)); dict.Add(k, v); },
+            removeAction: async (k, ct) => { await Task.Yield(); removed.Add(k); return dict.Remove(k); });
+
+        added.Should().ContainSingle().Which.Should().Be(("c", 3));
+        removed.Should().ContainSingle().Which.Should().Be("a");
+        dict.Should().ContainKeys("b", "c");
+    }
+
+    [Fact]
+    public async Task UpdateFromAsync_WithDictionary_UsesDefaultActions()
+    {
+        var dict = new Dictionary<string, int> { ["a"] = 1 };
+
+        await dict.UpdateFromAsync(
+            addedItems: new[] { new KeyValuePair<string, int>("b", 2) },
+            removedItems: new[] { new KeyValuePair<string, int>("a", 1) });
+
+        dict.Should().ContainKey("b");
+        dict.Should().NotContainKey("a");
+    }
+
+    [Fact]
+    public async Task UpdateFromAsync_WithCancellation_ThrowsOperationCanceledException()
+    {
+        var dict = new Dictionary<string, int> { ["a"] = 1 };
+        var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        var action = async () => await dict.UpdateFromAsync(
+            addedItems: new[] { new KeyValuePair<string, int>("b", 2) },
+            removedItems: null,
+            cancellationToken: cts.Token);
+
+        await action.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [Fact]
+    public async Task UpdateFromAsync_WithFullCustomization_HandlesAddUpdateRemove()
+    {
+        var output = new Dictionary<string, string> { ["1"] = "1", ["b"] = "2" };
+        var input = new Dictionary<int, int> { [1] = 2, [3] = 4 };
+        var added = new List<(string Key, string Value)>();
+        var updated = new List<(string Key, string Value)>();
+        var removed = new List<string>();
+
+        await output.UpdateFromAsync(
+            input,
+            areRepresentingTheSameKey: (src, dest) => src.ToString() == dest,
+            fromKeyInputTypeToKeyOutputTypeConversion: key => key.ToString(),
+            areRepresentingTheSameValue: (src, dest) => src.ToString() == dest,
+            fromValueInputTypeToValueOutputTypeConversion: value => value.ToString(),
+            addAction: async (k, v, ct) => { await Task.Yield(); added.Add((k, v)); },
+            updateAction: async (k, v, ct) => { await Task.Yield(); updated.Add((k, v)); },
+            removeAction: async (key, ct) => { await Task.Yield(); removed.Add(key); return true; });
+
+        added.Should().ContainSingle().Which.Should().Be(("3", "4"));
+        updated.Should().ContainSingle().Which.Should().Be(("1", "2"));
+        removed.Should().ContainSingle().Which.Should().Be("b");
+    }
+
+    [Fact]
+    public async Task UpdateFromAsync_WithEmptyCollections_CompletesSuccessfully()
+    {
+        var output = new Dictionary<string, int>();
+        var input = new Dictionary<string, int>();
+
+        await output.UpdateFromAsync(
+            input,
+            areRepresentingTheSameKey: (src, dest) => src == dest,
+            fromKeyInputTypeToKeyOutputTypeConversion: k => k,
+            areRepresentingTheSameValue: (src, dest) => src == dest,
+            fromValueInputTypeToValueOutputTypeConversion: v => v);
+
+        output.Should().BeEmpty();
     }
 }

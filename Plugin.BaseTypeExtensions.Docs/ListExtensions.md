@@ -54,18 +54,124 @@ numbers.RemoveWhere(n => n % 2 == 0); // Remove even numbers
 
 ### Update Operations
 
-#### `UpdateFrom<T>(List<T> source, List<T> target, Func<T, T, bool> matcher)`
-Synchronizes source list with target list using custom matching logic.
+#### `UpdateFrom<T>(IList<T> output, IEnumerable<T>? addedItems, IEnumerable<T>? removedItems)`
+Directly adds and removes specified items from the list.
 
 ```csharp
-var sourceUsers = GetCurrentUsers();
-var targetUsers = GetUpdatedUsers();
+var list = new List<string> { "a", "b", "c" };
+var toAdd = new[] { "d", "e" };
+var toRemove = new[] { "b" };
 
-sourceUsers.UpdateFrom(
-    targetUsers,
-    (source, target) => source.Id == target.Id,
-    onAdd: user => logger.LogInformation($"Added user: {user.Name}"),
-    onRemove: user => logger.LogInformation($"Removed user: {user.Name}")
+list.UpdateFrom(
+    addedItems: toAdd,
+    removedItems: toRemove
+);
+// Result: ["a", "c", "d", "e"]
+```
+
+#### `UpdateFrom<TInput, TOutput>(IList<TOutput> output, IList<TInput> input, Func<TInput, TOutput, bool> areRepresentingTheSameItem, Func<TInput, TOutput> fromInputTypeToOutputTypeConversion)`
+Synchronizes list with type conversion.
+
+```csharp
+var viewModels = new List<UserViewModel>();
+var dtos = await GetUserDtosFromApi();
+
+viewModels.UpdateFrom(
+    input: dtos,
+    areRepresentingTheSameItem: (dto, vm) => dto.Id == vm.Id,
+    fromInputTypeToOutputTypeConversion: dto => new UserViewModel(dto)
+);
+```
+
+#### `UpdateFrom<TInput, TOutput>(IList<TOutput> output, IList<TInput> input, Func<TInput, TOutput> fromInputTypeToOutputTypeConversion)`
+Simplified synchronization when output type implements IEquatable.
+
+```csharp
+var ids = new List<int>();
+var users = await GetUsersAsync();
+
+ids.UpdateFrom(
+    input: users,
+    fromInputTypeToOutputTypeConversion: user => user.Id
+);
+```
+
+#### `UpdateFrom<T>(IList<T> output, IList<T> input, Func<T, T, bool> areRepresentingTheSameItem)`
+Synchronizes lists of the same type with custom comparison.
+
+```csharp
+var currentUsers = GetCurrentUsers();
+var updatedUsers = GetUpdatedUsers();
+
+currentUsers.UpdateFrom(
+    input: updatedUsers,
+    areRepresentingTheSameItem: (user1, user2) => user1.Id == user2.Id
+);
+```
+
+#### `UpdateFrom<T>(IList<T> output, IList<T> input)`
+Simple synchronization using default equality comparison.
+
+```csharp
+var list1 = new List<int> { 1, 2, 3 };
+var list2 = new List<int> { 2, 3, 4 };
+
+list1.UpdateFrom(list2);
+// Result: [2, 3, 4]
+```
+
+### UpdateFromAsync Methods
+
+Async versions for scenarios involving async operations.
+
+#### `UpdateFromAsync<T>(IList<T> output, IEnumerable<T>? addedItems, IEnumerable<T>? removedItems, Func<T, CancellationToken, Task>? addAction, Func<T, CancellationToken, Task<bool>>? removeAction, CancellationToken cancellationToken)`
+Asynchronously adds and removes items with cancellation support.
+
+```csharp
+var list = new List<Product>();
+var toAdd = new[] { product1, product2 };
+var toRemove = new[] { product3 };
+
+await list.UpdateFromAsync(
+    addedItems: toAdd,
+    removedItems: toRemove,
+    addAction: async (product, ct) =>
+    {
+        await _productService.CreateAsync(product, ct);
+        list.Add(product);
+    },
+    removeAction: async (product, ct) =>
+    {
+        await _productService.DeleteAsync(product.Id, ct);
+        return list.Remove(product);
+    },
+    cancellationToken: cancellationToken
+);
+```
+
+#### `UpdateFromAsync<TInput, TOutput>(IList<TOutput> output, IList<TInput> input, Func<TInput, TOutput, bool> areRepresentingTheSameItem, Func<TInput, TOutput> fromInputTypeToOutputTypeConversion, Func<TOutput, CancellationToken, Task> addAction, Func<TOutput, CancellationToken, Task<bool>> removeAction, CancellationToken cancellationToken)`
+Asynchronously synchronizes with type conversion.
+
+```csharp
+var entities = await dbContext.Orders.ToListAsync();
+var dtos = await GetOrdersFromApi();
+
+await entities.UpdateFromAsync(
+    input: dtos,
+    areRepresentingTheSameItem: (dto, entity) => dto.OrderId == entity.Id,
+    fromInputTypeToOutputTypeConversion: dto => new Order { Id = dto.OrderId, Total = dto.Total },
+    addAction: async (entity, ct) =>
+    {
+        dbContext.Orders.Add(entity);
+        await dbContext.SaveChangesAsync(ct);
+    },
+    removeAction: async (entity, ct) =>
+    {
+        dbContext.Orders.Remove(entity);
+        await dbContext.SaveChangesAsync(ct);
+        return true;
+    },
+    cancellationToken: cancellationToken
 );
 ```
 

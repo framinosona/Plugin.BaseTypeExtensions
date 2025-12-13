@@ -47,6 +47,55 @@ public static class DictionaryExtensions
     }
 
     /// <summary>
+    ///     Updates the output collection by adding and removing specified items.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the dictionary keys.</typeparam>
+    /// <typeparam name="TValue">The type of the dictionary values.</typeparam>
+    /// <param name="output">The collection to update.</param>
+    /// <param name="addedItems">The items to add to the collection.</param>
+    /// <param name="removedItems">The items to remove from the collection.</param>
+    /// <param name="addAction">Action to perform when adding an item. If null and output is an IDictionary, uses the dictionary's Add method.</param>
+    /// <param name="removeAction">Function to perform when removing an item. If null and output is an IDictionary, uses the dictionary's Remove method.</param>
+    public static void UpdateFrom<TKey, TValue>(
+        this IEnumerable<KeyValuePair<TKey, TValue>> output,
+        IEnumerable<KeyValuePair<TKey, TValue>>? addedItems = null,
+        IEnumerable<KeyValuePair<TKey, TValue>>? removedItems = null,
+        Action<TKey, TValue>? addAction = null,
+        Func<TKey, bool>? removeAction = null
+    ) where TKey : notnull
+    {
+        // Validate inputs and set default actions
+        if (output is IDictionary<TKey, TValue> outputAsDictionary)
+        {
+            addAction ??= outputAsDictionary.Add;
+            removeAction ??= outputAsDictionary.Remove;
+        }
+        else
+        {
+            ArgumentNullException.ThrowIfNull(addAction);
+            ArgumentNullException.ThrowIfNull(removeAction);
+        }
+
+        // Add items
+        if (addedItems != null)
+        {
+            foreach (var item in addedItems)
+            {
+                addAction(item.Key, item.Value);
+            }
+        }
+
+        // Remove items
+        if (removedItems != null)
+        {
+            foreach (var item in removedItems)
+            {
+                removeAction(item.Key);
+            }
+        }
+    }
+
+    /// <summary>
     ///     Updates the output collection from the input collection with optional actions for adding, updating, and removing items.
     /// </summary>
     public static void UpdateFrom<TKey, TValue>(
@@ -288,5 +337,161 @@ public static class DictionaryExtensions
         toBeRemoved.RemoveAll(key => processedOutputKeys.Contains(key));
 
         return (toBeAdded, toBeUpdated, toBeRemoved);
+    }
+
+    /// <summary>
+    ///     Asynchronously updates the output collection by adding and removing specified items.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the dictionary keys.</typeparam>
+    /// <typeparam name="TValue">The type of the dictionary values.</typeparam>
+    /// <param name="output">The collection to update.</param>
+    /// <param name="addedItems">The items to add to the collection.</param>
+    /// <param name="removedItems">The items to remove from the collection.</param>
+    /// <param name="addAction">Async action to perform when adding an item. If null and output is an IDictionary, uses the dictionary's Add method.</param>
+    /// <param name="removeAction">Async function to perform when removing an item. If null and output is an IDictionary, uses the dictionary's Remove method.</param>
+    /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
+    public static async Task UpdateFromAsync<TKey, TValue>(
+        this IEnumerable<KeyValuePair<TKey, TValue>> output,
+        IEnumerable<KeyValuePair<TKey, TValue>>? addedItems = null,
+        IEnumerable<KeyValuePair<TKey, TValue>>? removedItems = null,
+        Func<TKey, TValue, CancellationToken, Task>? addAction = null,
+        Func<TKey, CancellationToken, Task<bool>>? removeAction = null,
+        CancellationToken cancellationToken = default
+    ) where TKey : notnull
+    {
+        // Validate inputs and set default actions
+        Func<TKey, TValue, CancellationToken, Task> finalAddAction;
+        Func<TKey, CancellationToken, Task<bool>> finalRemoveAction;
+
+        if (output is IDictionary<TKey, TValue> outputAsDictionary)
+        {
+            finalAddAction = addAction ?? ((key, value, ct) =>
+            {
+                outputAsDictionary.Add(key, value);
+                return Task.CompletedTask;
+            });
+            finalRemoveAction = removeAction ?? ((key, ct) => Task.FromResult(outputAsDictionary.Remove(key)));
+        }
+        else
+        {
+            ArgumentNullException.ThrowIfNull(addAction);
+            ArgumentNullException.ThrowIfNull(removeAction);
+            finalAddAction = addAction;
+            finalRemoveAction = removeAction;
+        }
+
+        // Add items
+        if (addedItems != null)
+        {
+            foreach (var item in addedItems)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await finalAddAction(item.Key, item.Value, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        // Remove items
+        if (removedItems != null)
+        {
+            foreach (var item in removedItems)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await finalRemoveAction(item.Key, cancellationToken).ConfigureAwait(false);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Asynchronously updates the output collection from the input collection with custom key and value comparison, conversion, and optional actions for adding, updating, and removing items.
+    /// </summary>
+    /// <typeparam name="TKeyInput">The type of the input dictionary keys.</typeparam>
+    /// <typeparam name="TValueInput">The type of the input dictionary values.</typeparam>
+    /// <typeparam name="TKeyOutput">The type of the output dictionary keys.</typeparam>
+    /// <typeparam name="TValueOutput">The type of the output dictionary values.</typeparam>
+    /// <param name="output">The output collection to update.</param>
+    /// <param name="input">The input collection to use for updates.</param>
+    /// <param name="areRepresentingTheSameKey">Function to determine if two keys represent the same key.</param>
+    /// <param name="fromKeyInputTypeToKeyOutputTypeConversion">Function to convert input keys to output keys.</param>
+    /// <param name="areRepresentingTheSameValue">Function to determine if two values represent the same value.</param>
+    /// <param name="fromValueInputTypeToValueOutputTypeConversion">Function to convert input values to output values.</param>
+    /// <param name="addAction">Async action to perform when adding an item.</param>
+    /// <param name="updateAction">Async action to perform when updating an item.</param>
+    /// <param name="removeAction">Async function to perform when removing an item.</param>
+    /// <param name="cancellationToken">Token to monitor for cancellation requests.</param>
+    public static async Task UpdateFromAsync<TKeyInput, TValueInput, TKeyOutput, TValueOutput>(
+        this IEnumerable<KeyValuePair<TKeyOutput, TValueOutput>> output,
+        IEnumerable<KeyValuePair<TKeyInput, TValueInput>> input,
+        Func<TKeyInput, TKeyOutput, bool> areRepresentingTheSameKey,
+        Func<TKeyInput, TKeyOutput> fromKeyInputTypeToKeyOutputTypeConversion,
+        Func<TValueInput, TValueOutput, bool> areRepresentingTheSameValue,
+        Func<TValueInput, TValueOutput> fromValueInputTypeToValueOutputTypeConversion,
+        Func<TKeyOutput, TValueOutput, CancellationToken, Task>? addAction = null,
+        Func<TKeyOutput, TValueOutput, CancellationToken, Task>? updateAction = null,
+        Func<TKeyOutput, CancellationToken, Task<bool>>? removeAction = null,
+        CancellationToken cancellationToken = default
+    ) where TKeyInput : notnull
+        where TKeyOutput : notnull
+    {
+        // Validate inputs and set default actions
+        Func<TKeyOutput, TValueOutput, CancellationToken, Task> finalAddAction;
+        Func<TKeyOutput, TValueOutput, CancellationToken, Task> finalUpdateAction;
+        Func<TKeyOutput, CancellationToken, Task<bool>> finalRemoveAction;
+
+        if (output is IDictionary<TKeyOutput, TValueOutput> outputAsDictionary)
+        {
+            finalAddAction = addAction ?? ((key, value, ct) =>
+            {
+                outputAsDictionary.Add(key, value);
+                return Task.CompletedTask;
+            });
+            finalUpdateAction = updateAction ?? ((key, value, ct) =>
+            {
+                outputAsDictionary[key] = value;
+                return Task.CompletedTask;
+            });
+            finalRemoveAction = removeAction ?? ((key, ct) => Task.FromResult(outputAsDictionary.Remove(key)));
+        }
+        else
+        {
+            ArgumentNullException.ThrowIfNull(addAction);
+            ArgumentNullException.ThrowIfNull(updateAction);
+            ArgumentNullException.ThrowIfNull(removeAction);
+            finalAddAction = addAction;
+            finalUpdateAction = updateAction;
+            finalRemoveAction = removeAction;
+        }
+
+        ArgumentNullException.ThrowIfNull(areRepresentingTheSameKey);
+        ArgumentNullException.ThrowIfNull(fromKeyInputTypeToKeyOutputTypeConversion);
+        ArgumentNullException.ThrowIfNull(areRepresentingTheSameValue);
+        ArgumentNullException.ThrowIfNull(fromValueInputTypeToValueOutputTypeConversion);
+
+        // Prepare work collections
+        var keyValuePairs = output as KeyValuePair<TKeyOutput, TValueOutput>[] ?? output.ToArray();
+        var outputDictionary = new Dictionary<TKeyOutput, TValueOutput>(keyValuePairs.ToDictionary(pair => pair.Key, pair => pair.Value));
+        var inputDictionary = new Dictionary<TKeyInput, TValueInput>(input.ToDictionary(pair => pair.Key, pair => pair.Value));
+
+        var (toBeAdded, toBeUpdated, toBeRemoved) = CompareDictionaries(areRepresentingTheSameKey, areRepresentingTheSameValue, inputDictionary, outputDictionary);
+
+        foreach (var itemToBeAdded in toBeAdded)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var outputKey = fromKeyInputTypeToKeyOutputTypeConversion.Invoke(itemToBeAdded.Key);
+            var outputValue = fromValueInputTypeToValueOutputTypeConversion.Invoke(itemToBeAdded.Value);
+            await finalAddAction(outputKey, outputValue, cancellationToken).ConfigureAwait(false);
+        }
+
+        foreach (var itemToBeRemoved in toBeRemoved)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            await finalRemoveAction(itemToBeRemoved, cancellationToken).ConfigureAwait(false);
+        }
+
+        foreach (var itemToBeUpdated in toBeUpdated)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var outputValue = fromValueInputTypeToValueOutputTypeConversion.Invoke(itemToBeUpdated.Value);
+            await finalUpdateAction(itemToBeUpdated.Key, outputValue, cancellationToken).ConfigureAwait(false);
+        }
     }
 }
